@@ -1,0 +1,19 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StackZenGodot", "StackZenGodot.csproj", "{D32D353C-DCD6-4D8E-B512-D50E74CE46BB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+	Debug|Any CPU = Debug|Any CPU
+	ExportDebug|Any CPU = ExportDebug|Any CPU
+	ExportRelease|Any CPU = ExportRelease|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D32D353C-DCD6-4D8E-B512-D50E74CE46BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D32D353C-DCD6-4D8E-B512-D50E74CE46BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D32D353C-DCD6-4D8E-B512-D50E74CE46BB}.ExportDebug|Any CPU.ActiveCfg = ExportDebug|Any CPU
+		{D32D353C-DCD6-4D8E-B512-D50E74CE46BB}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
+		{D32D353C-DCD6-4D8E-B512-D50E74CE46BB}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
+		{D32D353C-DCD6-4D8E-B512-D50E74CE46BB}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+	EndGlobalSection
+EndGlobal

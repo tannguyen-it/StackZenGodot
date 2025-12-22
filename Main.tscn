@@ -1,0 +1,164 @@
+[gd_scene load_steps=7 format=3 uid="uid://bkeq4ow01wdt3"]
+
+[ext_resource type="Script" uid="uid://bao4bmurqd4xo" path="res://MainController.cs" id="1_cm0pq"]
+[ext_resource type="Script" uid="uid://inbcgtfk64r0" path="res://StackGame.cs" id="1_glv2v"]
+[ext_resource type="PackedScene" uid="uid://ob88v2smamgg" path="res://Block.tscn" id="2_uu6xs"]
+[ext_resource type="Shader" uid="uid://byxl38u8qtt1j" path="res://Main.gdshader" id="3_r0du0"]
+[ext_resource type="FontFile" uid="uid://datltp3uuxxut" path="res://UI/Fredoka-VariableFont_wdth,wght.ttf" id="4_font"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cm0pq"]
+shader = ExtResource("3_r0du0")
+shader_parameter/col_center = Color(0.196, 0.259, 0.333, 1)
+shader_parameter/col_edge = Color(0.125, 0.165, 0.235, 1)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_cm0pq")
+
+[node name="Game" type="Node2D" parent="."]
+script = ExtResource("1_glv2v")
+BlockScene = ExtResource("2_uu6xs")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="BestLabel" type="Label" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -113.0
+offset_bottom = 43.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 45
+text = "BEST 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RestartButton" type="Button" parent="HUD"]
+offset_left = 287.0
+offset_top = 364.0
+offset_right = 405.0
+offset_bottom = 395.0
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 26
+text = "RESTART"
+flat = true
+
+[node name="TopCenterBox" type="VBoxContainer" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 40.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="HUD/TopCenterBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 59
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ComboLabel" type="Label" parent="HUD/TopCenterBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 35
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PerfectLabel" type="Label" parent="HUD/TopCenterBox"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 35
+text = "Perfect!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StartScreen" type="CanvasLayer" parent="."]
+
+[node name="UIRoot" type="Control" parent="StartScreen"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleWrap" type="CenterContainer" parent="StartScreen/UIRoot"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 36.0
+offset_bottom = 171.0
+grow_horizontal = 2
+
+[node name="TitleLabel" type="Label" parent="StartScreen/UIRoot/TitleWrap"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 92
+text = "STACK ZEN"
+
+[node name="TapWrap" type="CenterContainer" parent="StartScreen/UIRoot"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -114.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TapLabel" type="Label" parent="StartScreen/UIRoot/TapWrap"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 32
+text = "Tap to play"
+horizontal_alignment = 1
+
+[node name="InputCatcher" type="ColorRect" parent="StartScreen/UIRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="PreviewBlocks" type="Node2D" parent="StartScreen"]
+
+[node name="PreviewBase" parent="StartScreen/PreviewBlocks" instance=ExtResource("2_uu6xs")]
+visible = false
+Width = 240.0
+BaseColor = Color(0.92, 0.35, 0.35, 1)
+
+[node name="PreviewMoving" parent="StartScreen/PreviewBlocks" instance=ExtResource("2_uu6xs")]
+visible = false
+Width = 240.0
+BaseColor = Color(0.95, 0.62, 0.18, 1)
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="BG" type="ColorRect" parent="BackgroundLayer"]
+material = SubResource("ShaderMaterial_cm0pq")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.9843137, 0.89411765, 0.6862745, 1)
