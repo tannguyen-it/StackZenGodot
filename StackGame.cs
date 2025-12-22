@@ -176,6 +176,7 @@ public partial class StackGame : Node2D
 
 	private void UpdateCamera()
 	{
+		if (_isGameOver) return;
 		if (_placed.Count == 0)
 			return;
 
@@ -242,7 +243,10 @@ public partial class StackGame : Node2D
 		_placed.Add(baseBlock);
 
 		SpawnCurrent();
+		Scale = Vector2.One;
+		_externalOffsetY = 0f; // hoặc ExternalOffsetY = 0f;
 		SnapCameraToTop();
+		ApplyCameraPosition();
 	}
 
 	private Color GetPaletteColor(int levelIndex)
@@ -382,6 +386,7 @@ public partial class StackGame : Node2D
 	{
 		_isGameOver = true;
 		_restartButton.Visible = true;
+		GameOverZoomOutToFit();
 	}
 
 	private void OnRestartPressed()
@@ -482,4 +487,84 @@ public partial class StackGame : Node2D
 		SetProcess(true);
 		SetProcessUnhandledInput(true);
 	}
+
+	private Rect2 GetTowerBounds()
+	{
+		bool hasAny = false;
+		float minX = 0, minY = 0, maxX = 0, maxY = 0;
+
+		foreach (var child in GetChildren())
+		{
+			if (child is not BlockNode b) continue;
+
+			// BlockNode Position là tâm theo X, và Y theo BaseY bạn set (local)
+			// Width/Height bạn có sẵn trong BlockNode
+			float left = b.Position.X - b.Width * 0.5f;
+			float right = b.Position.X + b.Width * 0.5f;
+			float top = b.Position.Y - b.Height;   // mặt trên
+			float bottom = b.Position.Y;              // mặt dưới
+
+			if (!hasAny)
+			{
+				minX = left; maxX = right; minY = top; maxY = bottom;
+				hasAny = true;
+			}
+			else
+			{
+				minX = Mathf.Min(minX, left);
+				maxX = Mathf.Max(maxX, right);
+				minY = Mathf.Min(minY, top);
+				maxY = Mathf.Max(maxY, bottom);
+			}
+		}
+
+		if (!hasAny) return new Rect2(0, 0, 1, 1);
+
+		return new Rect2(minX, minY, maxX - minX, maxY - minY);
+	}
+	private Tween _gameOverTween;
+
+	private void GameOverZoomOutToFit()
+	{
+		var view = GetViewportRect().Size;
+
+		// 1) Lấy bounds toàn tháp (local space của Game)
+		Rect2 bounds = GetTowerBounds();
+
+		// 2) Chừa margin để nhìn thoáng
+		float margin = 90f;
+		float availW = Mathf.Max(1f, view.X - margin * 2f);
+		float availH = Mathf.Max(1f, view.Y - margin * 2f);
+
+		// 3) Tính scale để fit
+		float scaleX = availW / bounds.Size.X;
+		float scaleY = availH / bounds.Size.Y;
+		float targetScale = Mathf.Min(scaleX, scaleY);
+
+		// Không zoom-in nếu đang to quá; chỉ zoom-out từ từ
+		targetScale = Mathf.Min(1f, targetScale);
+
+		Vector2 targetScaleV = new Vector2(targetScale, targetScale);
+
+		// 4) Tính target position để bounds nằm giữa màn hình
+		Vector2 boundsCenterLocal = bounds.Position + bounds.Size * 0.5f;
+
+		// Ta muốn: (Game.Position) + (boundsCenterLocal * targetScale) = screenCenter
+		Vector2 screenCenter = view * 0.5f;
+		Vector2 targetPos = screenCenter - boundsCenterLocal * targetScale;
+
+		// 5) Tween scale + position
+		_gameOverTween?.Kill();
+		_gameOverTween = CreateTween();
+		_gameOverTween.SetParallel(true);
+
+		_gameOverTween.TweenProperty(this, "scale", targetScaleV, 0.9f)
+			.SetTrans(Tween.TransitionType.Cubic)
+			.SetEase(Tween.EaseType.Out);
+
+		_gameOverTween.TweenProperty(this, "position", targetPos, 0.9f)
+			.SetTrans(Tween.TransitionType.Cubic)
+			.SetEase(Tween.EaseType.Out);
+	}
+
 }
