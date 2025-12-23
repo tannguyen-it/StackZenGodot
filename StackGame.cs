@@ -18,6 +18,7 @@ public partial class StackGame : Node2D
 	private const float Gravity = 900f;
 	private const float FadeSpeed = 1.1f;
 	private const float DespawnY = 1400f;
+	private ClickSfx _clickSfx;
 
 	public BlockNode MenuBaseBlock => _placed.Count > 0 ? _placed[0] : null;
 	public BlockNode MenuCurrentBlock => _current;
@@ -72,6 +73,7 @@ public partial class StackGame : Node2D
 		_comboLabel = GetNode<Label>("../HUD/TopCenterBox/ComboLabel");
 		_perfectLabel = GetNode<Label>("../HUD/TopCenterBox/PerfectLabel");
 		_gameOverOverlay = GetNode<ColorRect>("../HUD/GameOverOverlay");
+		_clickSfx = GetNode<ClickSfx>("../SfxPlayer");
 
 		_restartButton.Pressed += OnRestartPressed;
 		_restartButton.Visible = false;
@@ -288,6 +290,8 @@ public partial class StackGame : Node2D
 
 	private void PlaceCurrent()
 	{
+		_clickSfx?.PlayClick();
+
 		// ---- SCORE (combo nhân điểm) ----
 		int basePoints = 1;
 		if (_isGameOver || _current == null)

@@ -9,6 +9,7 @@ public partial class MainController : Node2D
 	private Control _titleWrap;
 	private Control _tapWrap;
 	private ColorRect _inputCatcher;
+	private ClickSfx _clickSfx;
 
 	private bool _starting = false;
 	private float _t = 0f;
@@ -30,6 +31,7 @@ public partial class MainController : Node2D
 		_titleWrap = GetNode<Control>("StartScreen/UIRoot/TitleWrap");
 		_tapWrap = GetNode<Control>("StartScreen/UIRoot/TapWrap");
 		_inputCatcher = GetNode<ColorRect>("StartScreen/UIRoot/InputCatcher");
+		_clickSfx = GetNode<ClickSfx>("SfxPlayer");
 
 		// Start app: show StartScreen, hide HUD
 		_startScreen.Visible = true;
@@ -101,6 +103,8 @@ public partial class MainController : Node2D
 
 	private void BeginStartTransition()
 	{
+		_clickSfx?.PlayClick();
+
 		_starting = true;
 
 		// Không cho click lần 2

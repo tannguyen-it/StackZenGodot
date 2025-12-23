@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bkeq4ow01wdt3"]
+[gd_scene load_steps=14 format=3 uid="uid://bkeq4ow01wdt3"]
 
 [ext_resource type="Script" uid="uid://bao4bmurqd4xo" path="res://MainController.cs" id="1_cm0pq"]
 [ext_resource type="Script" uid="uid://inbcgtfk64r0" path="res://StackGame.cs" id="1_glv2v"]
@@ -6,6 +6,7 @@
 [ext_resource type="Shader" uid="uid://byxl38u8qtt1j" path="res://Main.gdshader" id="3_r0du0"]
 [ext_resource type="FontFile" uid="uid://datltp3uuxxut" path="res://UI/Fredoka-VariableFont_wdth,wght.ttf" id="4_font"]
 [ext_resource type="Script" uid="uid://basac6mr1xqws" path="res://LoFiBgm.cs" id="6_3dxm6"]
+[ext_resource type="Script" uid="uid://bs0h2vrckapbo" path="res://ClickSfx.cs" id="7_lgr22"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fos0i"]
 bg_color = Color(0.105882354, 0.16470589, 0.23137255, 1)
@@ -55,6 +56,9 @@ shader_parameter/col_center = Color(0.196, 0.259, 0.333, 1)
 shader_parameter/col_edge = Color(0.125, 0.165, 0.235, 1)
 
 [sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_3dxm6"]
+
+[sub_resource type="AudioStreamGenerator" id="AudioStreamGenerator_lgr22"]
+buffer_length = 0.12
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_cm0pq")
@@ -232,6 +236,10 @@ color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 [node name="BgmPlayer" type="AudioStreamPlayer" parent="."]
 stream = SubResource("AudioStreamGenerator_3dxm6")
 autoplay = true
+bus = &"Music"
 script = ExtResource("6_3dxm6")
-Bpm = 92
-VinylNoise = 0.006
+
+[node name="SfxPlayer" type="AudioStreamPlayer" parent="."]
+stream = SubResource("AudioStreamGenerator_lgr22")
+bus = &"SFX"
+script = ExtResource("7_lgr22")
