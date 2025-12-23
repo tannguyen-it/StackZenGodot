@@ -6,8 +6,9 @@ public partial class StackGame : Node2D
 	[Export] public PackedScene BlockScene { get; set; }
 
 	[Export] public float BlockHeight { get; set; } = 40f;
-	[Export] public float StartWidth { get; set; } = 260f;
-	[Export] public float MinWidth { get; set; } = 24f;
+	[Export] public float StartWidth { get; set; } = 300f;
+	[Export] public float MinWidth { get; set; } = 5f;
+	[Export] public float MinNextWidth { get; set; } = 0f;
 	[Export] public float MoveRange { get; set; } = 160f;
 	[Export] public float BaseSpeed { get; set; } = 260f;
 	[Export] public float PerfectWindow { get; set; } = 4f;
@@ -61,6 +62,7 @@ public partial class StackGame : Node2D
 	private Vector2 _viewSize;
 	private float _cameraOffsetY;
 	private float _externalOffsetY = 0f;
+	private ColorRect _gameOverOverlay;
 
 	public override void _Ready()
 	{
@@ -69,6 +71,7 @@ public partial class StackGame : Node2D
 		_restartButton = GetNode<Button>("../HUD/RestartButton");
 		_comboLabel = GetNode<Label>("../HUD/TopCenterBox/ComboLabel");
 		_perfectLabel = GetNode<Label>("../HUD/TopCenterBox/PerfectLabel");
+		_gameOverOverlay = GetNode<ColorRect>("../HUD/GameOverOverlay");
 
 		_restartButton.Pressed += OnRestartPressed;
 		_restartButton.Visible = false;
@@ -152,8 +155,6 @@ public partial class StackGame : Node2D
 		{
 			PlaceCurrent();
 		}
-
-		if (@event is InputEventMouseButton mbb && mbb.Pressed) GD.Print("GAME CLICK");
 	}
 
 	// ===== CAMERA: giữ block trên cùng ở ~38% màn hình =====
@@ -237,6 +238,8 @@ public partial class StackGame : Node2D
 
 		UpdateHud();
 		_restartButton.Visible = false;
+		_gameOverOverlay.Visible = false;
+		_restartButton.Visible = false;
 
 		BlockNode baseBlock = CreateBlock(StartWidth, BlockHeight, GetPaletteColor(0));
 		baseBlock.Position = new Vector2(0, BaseY);
@@ -269,7 +272,7 @@ public partial class StackGame : Node2D
 		return block;
 	}
 
-	private void SpawnCurrent()
+	private void SpawnCurrent(bool isPerfect = false)
 	{
 		BlockNode last = _placed[_placed.Count - 1];
 
@@ -278,13 +281,15 @@ public partial class StackGame : Node2D
 
 		int levelIndex = _placed.Count;
 		var color = GetPaletteColor(levelIndex);
-
-		_current = CreateBlock(last.Width, BlockHeight, color);
+		var nextWidth = isPerfect ? last.Width : last.Width - MinNextWidth;
+		_current = CreateBlock(nextWidth, BlockHeight, color);
 		_current.Position = new Vector2(-MoveRange, last.Position.Y - BlockHeight);
 	}
 
 	private void PlaceCurrent()
 	{
+		// ---- SCORE (combo nhân điểm) ----
+		int basePoints = 1;
 		if (_isGameOver || _current == null)
 			return;
 
@@ -292,14 +297,12 @@ public partial class StackGame : Node2D
 
 		float prevLeft = prev.Position.X - prev.Width / 2f;
 		float prevRight = prev.Position.X + prev.Width / 2f;
-
 		float currLeft = _current.Position.X - _current.Width / 2f;
 		float currRight = _current.Position.X + _current.Width / 2f;
 
 		float overlapLeft = Mathf.Max(prevLeft, currLeft);
 		float overlapRight = Mathf.Min(prevRight, currRight);
 		float overlapWidth = overlapRight - overlapLeft;
-
 		if (overlapWidth <= 0 || overlapWidth < MinWidth)
 		{
 			GameOver();
@@ -336,7 +339,6 @@ public partial class StackGame : Node2D
 
 		float centerDelta = Mathf.Abs(newCenterX - prev.Position.X);
 		bool isPerfect = centerDelta <= PerfectWindow;
-
 		if (isPerfect)
 		{
 			_combo++;
@@ -347,7 +349,14 @@ public partial class StackGame : Node2D
 			_combo = 0;
 		}
 
-		_score++;
+		// combo tăng khi perfect, còn không perfect thì combo đã reset về 0 ở trên.
+		// multiplier: combo=0 => 1, combo=3 => x3
+		int multiplier = (_combo > 0) ? _combo : 1;
+		// bonus nhẹ cho perfect để "đã tay"
+		int perfectBonus = isPerfect ? 0 : 0;
+
+		//_score++;
+		_score += basePoints * multiplier + perfectBonus;
 		if (_score > _best)
 		{
 			_best = _score;
@@ -356,7 +365,7 @@ public partial class StackGame : Node2D
 		}
 
 		UpdateHud();
-		SpawnCurrent();
+		SpawnCurrent(isPerfect);
 	}
 
 	private void SpawnFallingPiece(
@@ -386,6 +395,19 @@ public partial class StackGame : Node2D
 	{
 		_isGameOver = true;
 		_restartButton.Visible = true;
+		_gameOverOverlay.Visible = true;
+		_restartButton.Visible = true;
+		_gameOverOverlay.Modulate = new Color(1, 1, 1, 0);
+		_restartButton.Modulate = new Color(1, 1, 1, 0);
+		_restartButton.Scale = new Vector2(0.95f, 0.95f);
+
+		var tw = CreateTween();
+		tw.SetParallel(true);
+		tw.TweenProperty(_gameOverOverlay, "modulate:a", 1f, 0.2f);
+		tw.TweenProperty(_restartButton, "modulate:a", 1f, 0.25f);
+		tw.TweenProperty(_restartButton, "scale", Vector2.One, 0.25f)
+		  .SetTrans(Tween.TransitionType.Cubic)
+		  .SetEase(Tween.EaseType.Out);
 		GameOverZoomOutToFit();
 	}
 
@@ -403,6 +425,17 @@ public partial class StackGame : Node2D
 			_comboLabel.Text = $"COMBO x{_combo}";
 		else
 			_comboLabel.Text = string.Empty;
+
+		Color c = _comboLabel.Modulate;
+		c.A = 1f;
+		_comboLabel.Modulate = c;
+		_comboLabel.Visible = true;
+
+		Tween tween = CreateTween();
+		tween.TweenProperty(_comboLabel, "modulate:a", 0f, 0.35f)
+			 .SetDelay(0.35f)
+			 .SetTrans(Tween.TransitionType.Cubic)
+			 .SetEase(Tween.EaseType.In);
 	}
 
 	private void ShowPerfectToast()

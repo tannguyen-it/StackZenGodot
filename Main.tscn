@@ -1,10 +1,52 @@
-[gd_scene load_steps=7 format=3 uid="uid://bkeq4ow01wdt3"]
+[gd_scene load_steps=10 format=3 uid="uid://bkeq4ow01wdt3"]
 
 [ext_resource type="Script" uid="uid://bao4bmurqd4xo" path="res://MainController.cs" id="1_cm0pq"]
 [ext_resource type="Script" uid="uid://inbcgtfk64r0" path="res://StackGame.cs" id="1_glv2v"]
 [ext_resource type="PackedScene" uid="uid://ob88v2smamgg" path="res://Block.tscn" id="2_uu6xs"]
 [ext_resource type="Shader" uid="uid://byxl38u8qtt1j" path="res://Main.gdshader" id="3_r0du0"]
 [ext_resource type="FontFile" uid="uid://datltp3uuxxut" path="res://UI/Fredoka-VariableFont_wdth,wght.ttf" id="4_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fos0i"]
+bg_color = Color(0.105882354, 0.16470589, 0.23137255, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+shadow_color = Color(0.105882354, 0.16470589, 0.23137255, 1)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3dxm6"]
+bg_color = Color(0.11372549, 0.18039216, 0.26666668, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+shadow_color = Color(0.105882354, 0.16470589, 0.23137255, 1)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lgr22"]
+bg_color = Color(0.105882354, 0.16470589, 0.23137255, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.8, 0.8, 0.5921569, 1)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+shadow_color = Color(0.105882354, 0.16470589, 0.23137255, 1)
+shadow_size = 10
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cm0pq"]
 shader = ExtResource("3_r0du0")
@@ -34,16 +76,37 @@ text = "BEST 0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="GameOverOverlay" type="ColorRect" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
 [node name="RestartButton" type="Button" parent="HUD"]
-offset_left = 287.0
-offset_top = 364.0
-offset_right = 405.0
-offset_bottom = 395.0
-theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+custom_minimum_size = Vector2(250, 50)
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -151.0
+offset_top = -103.0
+offset_right = 149.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 0
+pivot_offset = Vector2(60, -65)
+theme_override_colors/font_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 34
+theme_override_styles/normal = SubResource("StyleBoxFlat_fos0i")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_3dxm6")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
 text = "RESTART"
-flat = true
 
 [node name="TopCenterBox" type="VBoxContainer" parent="HUD"]
 anchors_preset = 5
@@ -62,7 +125,7 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 59
+theme_override_font_sizes/font_size = 70
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
