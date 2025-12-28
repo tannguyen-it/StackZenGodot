@@ -10,6 +10,10 @@ public partial class MainController : Node2D
 	private Control _tapWrap;
 	private ColorRect _inputCatcher;
 	private ClickSfx _clickSfx;
+	private AudioStreamPlayer _menuBgm; // cái LoFiBgm đang chạy
+	private GameBgmArcade _gameBgm;
+	private AudioStreamPlayer _gameBgmPlayer; // nhạc gameplay (arcade)
+	private Tween _musicTween;
 
 	private bool _starting = false;
 	private float _t = 0f;
@@ -32,6 +36,14 @@ public partial class MainController : Node2D
 		_tapWrap = GetNode<Control>("StartScreen/UIRoot/TapWrap");
 		_inputCatcher = GetNode<ColorRect>("StartScreen/UIRoot/InputCatcher");
 		_clickSfx = GetNode<ClickSfx>("SfxPlayer");
+		_menuBgm = GetNode<AudioStreamPlayer>("BgmPlayer");
+		_gameBgm = GetNode<GameBgmArcade>("GameBgmPlayer");
+		_gameBgmPlayer = GetNode<AudioStreamPlayer>("GameBgmPlayer");
+
+		// connect signal từ StackGame
+		var game = GetNode<Node>("Game"); // node Game gắn script StackGame
+		game.Connect("GameOverHappened", new Callable(this, nameof(OnGameOverMusic)));
+		game.Connect("RestartRequested", new Callable(this, nameof(OnRestartRequestedMusic)));
 
 		// Start app: show StartScreen, hide HUD
 		_startScreen.Visible = true;
@@ -103,7 +115,22 @@ public partial class MainController : Node2D
 
 	private void BeginStartTransition()
 	{
+		// start game bgm
+		if (!_gameBgm.Playing) _gameBgm.Play();
+		_gameBgm.VolumeDb = -60;
+
 		_clickSfx?.PlayClick();
+
+		if (_musicTween != null && _musicTween.IsRunning())
+			_musicTween.Kill();
+
+		_musicTween = CreateTween();
+
+		if (!_gameBgmPlayer.Playing) _gameBgmPlayer.Play();
+
+		_musicTween.TweenProperty(_menuBgm, "volume_db", -60f, 0.9f);
+		_musicTween.TweenProperty(_gameBgmPlayer, "volume_db", -10f, 0.9f);
+
 
 		_starting = true;
 
@@ -120,7 +147,10 @@ public partial class MainController : Node2D
 		Tween tw = CreateTween();
 		tw.SetParallel(true);
 
-		// TitleWrap
+		//// crossfade 1s
+		//tw.TweenProperty(_menuBgm, "volume_db", -35, 1.0f);   // menu nhỏ lại (hoặc -60 để tắt hẳn)
+		//tw.TweenProperty(_gameBgm, "volume_db", -10, 1.0f);   // game to lên
+															  // TitleWrap
 		tw.TweenProperty(_titleWrap, "position", titleEnd, TransitionSeconds)
 		  .SetTrans(Tween.TransitionType.Cubic)
 		  .SetEase(Tween.EaseType.Out);
@@ -154,5 +184,85 @@ public partial class MainController : Node2D
 			// Stop preview loop
 			SetProcess(false);
 		};
+	}
+
+	private void OnGameOverMusic()
+	{
+		// kill tween cũ nếu có
+		if (_musicTween != null && _musicTween.IsRunning())
+			_musicTween.Kill();
+
+		_musicTween = CreateTween();
+		_musicTween.SetParallel(true);
+
+		// đảm bảo menu đang play (để fade lên)
+		if (_menuBgm != null && !_menuBgm.Playing)
+			_menuBgm.Play();
+
+		// Fade: gameplay xuống, menu lên
+		// Bạn chỉnh các mức db theo ý: 
+		// menu nghe vừa: -12 đến -8; gameplay tắt: -60
+		_musicTween.TweenProperty(_gameBgmPlayer, "volume_db", -60f, 0.9f)
+				   .SetTrans(Tween.TransitionType.Sine)
+				   .SetEase(Tween.EaseType.InOut);
+
+		_musicTween.TweenProperty(_menuBgm, "volume_db", -10f, 0.9f)
+				   .SetTrans(Tween.TransitionType.Sine)
+				   .SetEase(Tween.EaseType.InOut);
+
+		// Khi fade xong thì stop game bgm luôn cho nhẹ
+		_musicTween.TweenCallback(Callable.From(() =>
+		{
+			if (_gameBgmPlayer != null)
+				_gameBgmPlayer.Stop();
+		}));
+	}
+
+	private void OnRestartRequestedMusic()
+	{
+		FadeToGameMusic(); // hàm fade sang nhạc gameplay bạn đã có
+	}
+
+	private void FadeToGameMusic(float time = 0.6f)
+	{
+		// đảm bảo reference đúng
+		if (_menuBgm == null || _gameBgmPlayer == null)
+		{
+			return;
+		}
+
+		// Kill tween cũ (quan trọng: tween phải luôn dùng chung biến _musicTween)
+		if (_musicTween != null && _musicTween.IsRunning())
+			_musicTween.Kill();
+
+		// (tuỳ chọn) menu phải đang chạy để fade xuống (nếu bạn stop menu ở đâu đó)
+		if (!_menuBgm.Playing) _menuBgm.Play();
+
+		var gameBgmScript = _gameBgmPlayer as GameBgmArcade; // hoặc GetNode<GameBgmArcade>("GameBgmPlayer")
+		if (gameBgmScript != null)
+			gameBgmScript.RestartBgm();
+		else
+		{
+			_gameBgmPlayer.Stop();
+			_gameBgmPlayer.Play();
+		}
+
+		// đảm bảo game bgm đang chạy và xuất phát từ -60
+		if (!_gameBgmPlayer.Playing) _gameBgmPlayer.Play();
+		_gameBgmPlayer.VolumeDb = -60f;
+
+
+
+		// TWEEN SONG SONG (parallel) để fade mượt
+		_musicTween = CreateTween();
+		_musicTween.SetParallel(true);
+
+		_musicTween.TweenProperty(_menuBgm, "volume_db", -60f, time)
+			.SetTrans(Tween.TransitionType.Sine)
+			.SetEase(Tween.EaseType.InOut);
+
+		_musicTween.TweenProperty(_gameBgmPlayer, "volume_db", -10f, time)
+			.SetTrans(Tween.TransitionType.Sine)
+			.SetEase(Tween.EaseType.InOut);
 	}
 }

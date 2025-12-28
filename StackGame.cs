@@ -11,14 +11,18 @@ public partial class StackGame : Node2D
 	[Export] public float MinNextWidth { get; set; } = 0f;
 	[Export] public float MoveRange { get; set; } = 160f;
 	[Export] public float BaseSpeed { get; set; } = 260f;
-	[Export] public float PerfectWindow { get; set; } = 4f;
-
+	[Export] public float PerfectWindow { get; set; } = 2f;
+	[Signal]
+	public delegate void RestartRequestedEventHandler();
+	[Signal]
+	public delegate void GameOverHappenedEventHandler();
 	[Export] public float BaseY { get; set; } = 0f;
 
 	private const float Gravity = 900f;
 	private const float FadeSpeed = 1.1f;
 	private const float DespawnY = 1400f;
 	private ClickSfx _clickSfx;
+	private FxSfx _fxSfx;
 
 	public BlockNode MenuBaseBlock => _placed.Count > 0 ? _placed[0] : null;
 	public BlockNode MenuCurrentBlock => _current;
@@ -74,6 +78,7 @@ public partial class StackGame : Node2D
 		_perfectLabel = GetNode<Label>("../HUD/TopCenterBox/PerfectLabel");
 		_gameOverOverlay = GetNode<ColorRect>("../HUD/GameOverOverlay");
 		_clickSfx = GetNode<ClickSfx>("../SfxPlayer");
+		_fxSfx = GetNode<FxSfx>("../FxPlayer");
 
 		_restartButton.Pressed += OnRestartPressed;
 		_restartButton.Visible = false;
@@ -225,6 +230,8 @@ public partial class StackGame : Node2D
 
 	private void RestartGame()
 	{
+		EmitSignal(SignalName.RestartRequested);
+		GD.Print("EmitSignal(SignalName.RestartRequested)");
 		foreach (Node child in GetChildren())
 		{
 			if (child is BlockNode block)
@@ -333,7 +340,7 @@ public partial class StackGame : Node2D
 							  rightCutWidth, BlockHeight, +1f, pieceColor);
 		}
 
-		// ❗ DÙNG CHÍNH _current LÀ BLOCK ĐÃ ĐẶT
+		// DÙNG CHÍNH _current LÀ BLOCK ĐÃ ĐẶT
 		_current.Position = new Vector2(newCenterX, _current.Position.Y);
 		_current.Width = overlapWidth;
 		_current.QueueRedraw();
@@ -346,7 +353,7 @@ public partial class StackGame : Node2D
 		if (isPerfect)
 		{
 			_combo++;
-			ShowPerfectToast();
+			ShowPerfectAndCombo();
 		}
 		else
 		{
@@ -398,13 +405,14 @@ public partial class StackGame : Node2D
 	private void GameOver()
 	{
 		_isGameOver = true;
+		EmitSignal(SignalName.GameOverHappened);
 		_restartButton.Visible = true;
 		_gameOverOverlay.Visible = true;
 		_restartButton.Visible = true;
 		_gameOverOverlay.Modulate = new Color(1, 1, 1, 0);
 		_restartButton.Modulate = new Color(1, 1, 1, 0);
 		_restartButton.Scale = new Vector2(0.95f, 0.95f);
-
+		_fxSfx?.PlayGameOver();
 		var tw = CreateTween();
 		tw.SetParallel(true);
 		tw.TweenProperty(_gameOverOverlay, "modulate:a", 1f, 0.2f);
@@ -424,25 +432,9 @@ public partial class StackGame : Node2D
 	{
 		_scoreLabel.Text = _score.ToString();
 		_bestLabel.Text = $"BEST {_best}";
-
-		if (_combo >= 2)
-			_comboLabel.Text = $"COMBO x{_combo}";
-		else
-			_comboLabel.Text = string.Empty;
-
-		Color c = _comboLabel.Modulate;
-		c.A = 1f;
-		_comboLabel.Modulate = c;
-		_comboLabel.Visible = true;
-
-		Tween tween = CreateTween();
-		tween.TweenProperty(_comboLabel, "modulate:a", 0f, 0.35f)
-			 .SetDelay(0.35f)
-			 .SetTrans(Tween.TransitionType.Cubic)
-			 .SetEase(Tween.EaseType.In);
 	}
 
-	private void ShowPerfectToast()
+	private void ShowPerfectAndCombo()
 	{
 		if (_perfectLabel == null)
 			return;
@@ -455,6 +447,42 @@ public partial class StackGame : Node2D
 
 		Tween tween = CreateTween();
 		tween.TweenProperty(_perfectLabel, "modulate:a", 0f, 0.35f)
+			 .SetDelay(0.35f)
+			 .SetTrans(Tween.TransitionType.Cubic)
+			 .SetEase(Tween.EaseType.In);
+
+		_fxSfx?.PlayPerfect(_combo);
+
+		if (_combo >= 2)
+		{
+			_comboLabel.Text = $"COMBO x{_combo}";
+			// intensity tăng theo score (0..1)
+			float intensity = Mathf.Clamp(_score / 40f, 0f, 1f);
+
+			// hoặc theo combo
+			var g = GetNodeOrNull<GameBgmArcade>("../GameBgmPlayer");
+			if (g != null)
+			{
+				float byScore = Mathf.Clamp(_score / 40f, 0f, 1f);
+				float byCombo = Mathf.Clamp(_combo / 8f, 0f, 1f);
+				g.SetIntensity(Mathf.Max(byScore, byCombo));
+			}
+		}
+		else
+			_comboLabel.Text = string.Empty;
+
+		if (_combo >= 4)
+		{
+			_fxSfx?.PlayComboTick(_combo);
+		}
+
+		Color cc = _comboLabel.Modulate;
+		cc.A = 1f;
+		_comboLabel.Modulate = cc;
+		_comboLabel.Visible = true;
+
+		//Tween tween = CreateTween();
+		tween.TweenProperty(_comboLabel, "modulate:a", 0f, 0.35f)
 			 .SetDelay(0.35f)
 			 .SetTrans(Tween.TransitionType.Cubic)
 			 .SetEase(Tween.EaseType.In);
