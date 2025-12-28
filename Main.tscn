@@ -1,10 +1,11 @@
-[gd_scene load_steps=18 format=3 uid="uid://bkeq4ow01wdt3"]
+[gd_scene load_steps=21 format=3 uid="uid://bkeq4ow01wdt3"]
 
 [ext_resource type="Script" uid="uid://bao4bmurqd4xo" path="res://MainController.cs" id="1_cm0pq"]
 [ext_resource type="Script" uid="uid://inbcgtfk64r0" path="res://StackGame.cs" id="1_glv2v"]
 [ext_resource type="PackedScene" uid="uid://ob88v2smamgg" path="res://Block.tscn" id="2_uu6xs"]
 [ext_resource type="Shader" uid="uid://byxl38u8qtt1j" path="res://Main.gdshader" id="3_r0du0"]
 [ext_resource type="FontFile" uid="uid://datltp3uuxxut" path="res://UI/Fredoka-VariableFont_wdth,wght.ttf" id="4_font"]
+[ext_resource type="Script" uid="uid://bp6cvytt1y3df" path="res://Top10Gallery.cs" id="5_wkp8b"]
 [ext_resource type="Script" uid="uid://basac6mr1xqws" path="res://LoFiBgm.cs" id="6_3dxm6"]
 [ext_resource type="Script" uid="uid://bs0h2vrckapbo" path="res://ClickSfx.cs" id="7_lgr22"]
 [ext_resource type="Script" uid="uid://b4thjqpf760rb" path="res://FxSfx.cs" id="8_trn2v"]
@@ -51,6 +52,11 @@ corner_radius_bottom_right = 30
 corner_radius_bottom_left = 30
 shadow_color = Color(0.105882354, 0.16470589, 0.23137255, 1)
 shadow_size = 10
+
+[sub_resource type="Theme" id="Theme_20pc6"]
+
+[sub_resource type="FontVariation" id="FontVariation_5vvyt"]
+base_font = ExtResource("4_font")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cm0pq"]
 shader = ExtResource("3_r0du0")
@@ -163,6 +169,79 @@ theme_override_font_sizes/font_size = 35
 text = "Perfect!"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Top10Button" type="Button" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -120.0
+offset_top = 75.0
+offset_right = -13.0
+offset_bottom = 138.0
+grow_horizontal = 0
+theme = SubResource("Theme_20pc6")
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = SubResource("FontVariation_5vvyt")
+theme_override_font_sizes/font_size = 45
+text = "TOP"
+
+[node name="Top10Overlay" type="Control" parent="HUD"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_wkp8b")
+ListPath = NodePath("Panel/VBox/Scroll/List")
+CloseButtonPath = NodePath("Panel/VBox/Header/CloseButton")
+
+[node name="Dim" type="ColorRect" parent="HUD/Top10Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Panel" type="PanelContainer" parent="HUD/Top10Overlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 700.0
+offset_bottom = 880.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUD/Top10Overlay/Panel"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="HUD/Top10Overlay/Panel/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HUD/Top10Overlay/Panel/VBox/Header"]
+layout_mode = 2
+text = "TOP 10 TOWERS"
+
+[node name="CloseButton" type="Button" parent="HUD/Top10Overlay/Panel/VBox/Header"]
+layout_mode = 2
+text = "X"
+
+[node name="Scroll" type="ScrollContainer" parent="HUD/Top10Overlay/Panel/VBox"]
+custom_minimum_size = Vector2(650, 650)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="HUD/Top10Overlay/Panel/VBox/Scroll"]
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="StartScreen" type="CanvasLayer" parent="."]
 

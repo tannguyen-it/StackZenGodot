@@ -18,6 +18,9 @@ public partial class StackGame : Node2D
 	public delegate void GameOverHappenedEventHandler();
 	[Export] public float BaseY { get; set; } = 0f;
 
+	private Top10Gallery _top10;
+	private CanvasLayer _hud;
+
 	private const float Gravity = 900f;
 	private const float FadeSpeed = 1.1f;
 	private const float DespawnY = 1400f;
@@ -79,9 +82,14 @@ public partial class StackGame : Node2D
 		_gameOverOverlay = GetNode<ColorRect>("../HUD/GameOverOverlay");
 		_clickSfx = GetNode<ClickSfx>("../SfxPlayer");
 		_fxSfx = GetNode<FxSfx>("../FxPlayer");
+		_hud = GetNode<CanvasLayer>("../HUD");
+		_top10 = GetNode<Top10Gallery>("../HUD/Top10Overlay");
 
 		_restartButton.Pressed += OnRestartPressed;
 		_restartButton.Visible = false;
+
+		var btn = GetNode<Button>("../HUD/Top10Button");
+		btn.Pressed += () => _top10.ShowGallery();
 
 		_viewSize = GetViewportRect().Size;
 
@@ -90,6 +98,7 @@ public partial class StackGame : Node2D
 		Position = new Vector2(_viewSize.X / 2f, _cameraOffsetY);
 
 		_best = (int)ProjectSettings.GetSetting("stackzen/best_score", 0);
+		_best = 0;
 		UpdateHud();
 
 		//RestartGame();
@@ -231,7 +240,6 @@ public partial class StackGame : Node2D
 	private void RestartGame()
 	{
 		EmitSignal(SignalName.RestartRequested);
-		GD.Print("EmitSignal(SignalName.RestartRequested)");
 		foreach (Node child in GetChildren())
 		{
 			if (child is BlockNode block)
@@ -400,6 +408,7 @@ public partial class StackGame : Node2D
 		};
 
 		_fallingPieces.Add(fp);
+		piece.AddToGroup("falling_piece");
 	}
 
 	private void GameOver()
@@ -630,6 +639,111 @@ public partial class StackGame : Node2D
 		_gameOverTween.TweenProperty(this, "position", targetPos, 0.9f)
 			.SetTrans(Tween.TransitionType.Cubic)
 			.SetEase(Tween.EaseType.Out);
+
+		_gameOverTween.TweenCallback(Callable.From(() =>
+		{
+			CallDeferred(nameof(TrySaveTop10Snapshot));
+		}));
 	}
 
+	private async void TrySaveTop10Snapshot()
+	{
+		if (_top10 == null) return;
+		if (!_top10.WouldQualify(_score)) return;
+
+		// --- 1) Đợi falling pieces rớt xong (tối đa 120 frame ~ 2s) ---
+		for (int i = 0; i < 120; i++)
+		{
+			var stillFalling = GetTree().GetNodesInGroup("falling_piece").Count > 0;
+			if (!stillFalling) break;
+			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		}
+
+		// --- 2) Ẩn UI không muốn chụp (TOP + RESTART), nhưng giữ Score + BEST ---
+		var topBtn = GetNodeOrNull<Control>("../HUD/Top10Button");
+		var restartBtn = GetNodeOrNull<Control>("../HUD/RestartButton");
+		// Lưu trạng thái visible hiện tại
+		bool bestWasVisible = _bestLabel != null && _bestLabel.Visible;
+		//bool scoreWasVisible = _scoreLabel != null && _scoreLabel.Visible;
+		bool comboWasVisible = _comboLabel != null && _comboLabel.Visible;
+		bool perfectWasVisible = _perfectLabel != null && _perfectLabel.Visible;
+
+		bool topWasVisible = topBtn != null && topBtn.Visible;
+		bool restartWasVisible = restartBtn != null && restartBtn.Visible;
+
+		// Ẩn đúng những thứ che tháp
+		if (_restartButton != null) _restartButton.Visible = false;
+		if (_bestLabel != null) _bestLabel.Visible = false;
+
+		// (tuỳ chọn) muốn ảnh “sạch” hơn thì ẩn luôn score/combo/perfect:
+		//if (_scoreLabel != null) _scoreLabel.Visible = false;
+		if (_comboLabel != null) _comboLabel.Visible = false;
+		if (_perfectLabel != null) _perfectLabel.Visible = false;
+		if (topBtn != null) topBtn.Visible = false;
+
+		//Save pose hiện tại (để restore)
+		Vector2 oldPos = Position;
+		Vector2 oldScale = Scale;
+
+		//Pose riêng để snapshot full đáy (không ảnh hưởng in-game vì sẽ restore ngay)
+		_gameOverTween?.Kill();
+		ApplyGameOverFitPoseForSnapshot();
+
+		// cho UI kịp update 1 frame
+		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+
+		// --- 3) Chụp sau khi render xong ---
+		await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+
+		Image img = GetViewport().GetTexture().GetImage();
+
+		// Fix hướng ảnh: bạn báo “ngược + lật” => flip cả 2 trục (xoay 180)
+		//img.FlipY();
+		//img.FlipX();
+
+		// --- 4) Restore UI ---
+		if (topBtn != null) topBtn.Visible = topWasVisible;
+		if (restartBtn != null) restartBtn.Visible = restartWasVisible;
+		//if (_restartButton != null) _restartButton.Visible = restartWasVisible;
+		if (_bestLabel != null) _bestLabel.Visible = bestWasVisible;
+		//if (_scoreLabel != null) _scoreLabel.Visible = scoreWasVisible;
+		if (_comboLabel != null) _comboLabel.Visible = comboWasVisible;
+		if (_perfectLabel != null) _perfectLabel.Visible = perfectWasVisible;
+
+		_top10.AddSnapshot(_score, img);
+	}
+
+	private void ApplyGameOverFitPoseForSnapshot()
+	{
+		Vector2 view = GetViewportRect().Size;
+		Rect2 bounds = GetTowerBounds();
+
+		// Pad an toàn cho snapshot (tăng/giảm tuỳ bạn)
+		float marginX = 70f;
+		float marginTop = 90f;
+		float marginBottom = 120f; // ✅ nên để 220~260 để không bao giờ cắt đáy
+
+		float availW = Mathf.Max(1f, view.X - marginX * 2f);
+		float availH = Mathf.Max(1f, view.Y - marginTop - marginBottom);
+
+		// scale fit theo vùng usable
+		float scaleX = availW / Mathf.Max(1f, bounds.Size.X);
+		float scaleY = availH / Mathf.Max(1f, bounds.Size.Y);
+		float s = Mathf.Min(scaleX, scaleY);
+		s = Mathf.Min(1f, s);
+
+		// Tính các điểm quan trọng
+		float boundsCenterX = bounds.Position.X + bounds.Size.X * 0.5f;
+		float boundsBottomY = bounds.Position.Y + bounds.Size.Y;
+
+		// ✅ Canh X: giữa màn hình
+		float targetPosX = view.X * 0.5f - boundsCenterX * s;
+
+		// ✅ Canh Y: đáy tháp nằm trên "đường đáy an toàn"
+		float safeBottomY = view.Y - marginBottom;
+		float targetPosY = safeBottomY - boundsBottomY * s;
+
+		Scale = new Vector2(s, s);
+		Position = new Vector2(targetPosX, targetPosY);
+	}
 }
