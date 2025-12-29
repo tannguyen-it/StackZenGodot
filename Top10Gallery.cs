@@ -7,33 +7,28 @@ using System.Text.Json;
 
 public partial class Top10Gallery : Control
 {
-	[Export] public NodePath ListPath;
-	[Export] public NodePath CloseButtonPath;
+	// Scene wiring (all are set in Main.tscn; keep fallbacks for safety)
+	[Export] public NodePath ScrollPath = new NodePath("");
+	[Export] public NodePath ListPath = new NodePath("");
+	[Export] public NodePath DetailViewPath = new NodePath("");
+	[Export] public NodePath DetailImagePath = new NodePath("");
+	[Export] public NodePath ShareButtonPath = new NodePath("");
 
+	[Export] public NodePath CloseButtonPath = new NodePath("");
 	[Export] public NodePath BackButtonPath = new NodePath("");
 	[Export] public NodePath LeftSpacerPath = new NodePath("");
 	[Export] public NodePath TitlePath = new NodePath("");
 
-	[Export] public NodePath ScrollPath = new NodePath("");
-	[Export] public NodePath DetailViewPath = new NodePath("");
-	[Export] public NodePath DetailImagePath = new NodePath("");
-	[Export] public NodePath DetailCloseBgPath = new NodePath("");
-	[Export] public NodePath ShareButtonPath = new NodePath("");
-
+	private ScrollContainer _scroll;
 	private VBoxContainer _list;
+	private VBoxContainer _detail;
+	private TextureRect _detailImage;
+	private Button _share;
+
 	private Button _close;
 	private Button _back;
 	private Control _leftSpacer;
 	private Label _title;
-
-	private ScrollContainer _scroll;
-	private Control _detailView;
-	private TextureRect _detailImage;
-	private Button _detailCloseBg;
-	private Button _share;
-
-	private Control _headerBar;
-	private PanelContainer _panel;
 
 	private Entry? _selected;
 	private FontFile? _uiFont;
@@ -53,47 +48,46 @@ public partial class Top10Gallery : Control
 	{
 		_uiFont = GD.Load<FontFile>("res://UI/Fredoka-VariableFont_wdth,wght.ttf");
 
-		// ---- robust get nodes (không chết nếu NodePath rỗng / bị rename nhẹ) ----
-		_panel = GetNodeOrNull<PanelContainer>("Panel");
-		_headerBar = GetNodeOrNull<Control>("Panel/RootVBox/HeaderBar");
+		_scroll = GetNodeOrNull<ScrollContainer>(ScrollPath)
+				  ?? GetNodeOrNull<ScrollContainer>("Panel/RootVBox/Body/Scroll");
 
-		_list = SafeGetNode<VBoxContainer>(ListPath, "Panel/RootVBox/Body/Scroll/List");
-		_close = SafeGetNode<Button>(CloseButtonPath, "Panel/RootVBox/HeaderBar/CloseButton");
+		_list = GetNodeOrNull<VBoxContainer>(ListPath)
+				?? GetNodeOrNull<VBoxContainer>("Panel/RootVBox/Body/Scroll/ScrollRoot/List");
 
-		_back = SafeGetNodeOrNull<Button>(BackButtonPath, "Panel/RootVBox/HeaderBar/BackButton");
-		_leftSpacer = SafeGetNodeOrNull<Control>(LeftSpacerPath, "Panel/RootVBox/HeaderBar/LeftSpacer");
-		_title = SafeGetNodeOrNull<Label>(TitlePath, "Panel/RootVBox/HeaderBar/Title");
+		_detail = GetNodeOrNull<VBoxContainer>(DetailViewPath)
+				  ?? GetNodeOrNull<VBoxContainer>("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail");
 
-		_scroll = SafeGetNodeOrNull<ScrollContainer>(ScrollPath, "Panel/RootVBox/Body/Scroll");
-		_detailView = SafeGetNodeOrNull<Control>(DetailViewPath, "Panel/RootVBox/Body/DetailView");
-		_detailImage = SafeGetNodeOrNull<TextureRect>(DetailImagePath, "Panel/RootVBox/Body/DetailView/DetailImage");
-		_detailCloseBg = SafeGetNodeOrNull<Button>(DetailCloseBgPath, "Panel/RootVBox/Body/DetailView/DetailCloseBg");
-		_share = SafeGetNodeOrNull<Button>(ShareButtonPath, "Panel/RootVBox/Body/DetailView/BottomBar/ShareButton");
+		_detailImage = GetNodeOrNull<TextureRect>(DetailImagePath)
+					   ?? GetNodeOrNull<TextureRect>("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/DetailImage");
 
-		// ---- wire events ----
-		_close.Pressed += CloseAll;
+		_share = GetNodeOrNull<Button>(ShareButtonPath)
+				 ?? GetNodeOrNull<Button>("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/BottomBar/ShareButton");
+
+		_close = GetNodeOrNull<Button>(CloseButtonPath)
+				 ?? GetNodeOrNull<Button>("Panel/RootVBox/HeaderBar/CloseButton");
+
+		_back = GetNodeOrNull<Button>(BackButtonPath)
+				?? GetNodeOrNull<Button>("Panel/RootVBox/HeaderBar/BackButton");
+
+		_leftSpacer = GetNodeOrNull<Control>(LeftSpacerPath)
+					  ?? GetNodeOrNull<Control>("Panel/RootVBox/HeaderBar/LeftSpacer");
+
+		_title = GetNodeOrNull<Label>(TitlePath)
+				 ?? GetNodeOrNull<Label>("Panel/RootVBox/HeaderBar/Title");
+
+		if (_close != null) _close.Pressed += CloseAll;
 		if (_back != null) _back.Pressed += CloseDetail;
-		if (_detailCloseBg != null) _detailCloseBg.Pressed += CloseDetail;
 		if (_share != null) _share.Pressed += ShareSelected;
 
-		// ---- detail view visual rules ----
-		if (_detailImage != null)
-		{
-			_detailImage.MouseFilter = MouseFilterEnum.Stop;
-			_detailImage.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
-		}
-
-		// shrink share button by code (phòng khi scene chưa update)
-		if (_share != null)
-		{
-			_share.CustomMinimumSize = new Vector2(110, 36);
-			_share.AddThemeFontSizeOverride("font_size", 18);
-		}
+		// Safety
+		if (_list == null) GD.PushError("[Top10] List not found. Check ListPath.");
+		if (_detail == null) GD.PushError("[Top10] Detail not found. Check DetailViewPath.");
+		if (_scroll == null) GD.PushError("[Top10] Scroll not found. Check ScrollPath.");
 
 		CloseAll();
 	}
 
-	// ===== PUBLIC API =====
+	// ====== PUBLIC API ======
 
 	public void ShowGallery()
 	{
@@ -114,7 +108,7 @@ public partial class Top10Gallery : Control
 		EnsureDirs();
 
 		string fileName = $"score_{score}_{DateTime.UtcNow:yyyyMMdd_HHmmss}.png";
-		string userPngPath = ShotsDir + fileName;
+		string userPngPath = ShotsDir + fileName; // user://...
 		string absPngPath = ProjectSettings.GlobalizePath(userPngPath);
 
 		shot.SavePng(absPngPath);
@@ -131,18 +125,10 @@ public partial class Top10Gallery : Control
 		Save(list);
 	}
 
-	// ===== UI =====
-
-	private void EnsureHeaderVisible()
-	{
-		if (_panel != null) _panel.Visible = true;
-		if (_headerBar != null) _headerBar.Visible = true;
-	}
+	// ====== UI ======
 
 	private void SetHeaderMode(bool detail)
 	{
-		EnsureHeaderVisible();
-
 		if (_back != null) _back.Visible = detail;
 		if (_leftSpacer != null) _leftSpacer.Visible = !detail;
 
@@ -151,13 +137,57 @@ public partial class Top10Gallery : Control
 			_title.Text = "TOP 10";
 			_title.HorizontalAlignment = HorizontalAlignment.Center;
 		}
+	}
 
-		// Close luôn visible
-		if (_close != null) _close.Visible = true;
+	private void ShowList()
+	{
+		_selected = null;
+		SetHeaderMode(detail: false);
+
+		if (_list != null) _list.Visible = true;
+		if (_detail != null) _detail.Visible = false;
+
+		ScrollToTop();
+	}
+
+	private void OpenDetail(Entry e)
+	{
+		_selected = e;
+		SetHeaderMode(detail: true);
+
+		if (_detailImage != null)
+			_detailImage.Texture = LoadTexture(e.Png);
+
+		if (_list != null) _list.Visible = false;
+		if (_detail != null) _detail.Visible = true;
+
+		ScrollToTop();
+	}
+
+	private void CloseDetail()
+	{
+		ShowList();
+	}
+
+	private void CloseAll()
+	{
+		ShowList();
+		Hide();
+	}
+
+	private void ScrollToTop()
+	{
+		if (_scroll == null) return;
+
+		// Set now + deferred (Godot sometimes updates scroll size next frame)
+		_scroll.ScrollVertical = 0;
+		_scroll.CallDeferred("set", "scroll_vertical", 0);
 	}
 
 	private void RefreshUI()
 	{
+		if (_list == null) return;
+
 		foreach (var c in _list.GetChildren())
 			c.QueueFree();
 
@@ -172,6 +202,7 @@ public partial class Top10Gallery : Control
 
 		foreach (var e in list)
 		{
+			// Card: thumbnail + score badge (inside image)
 			var card = new Control();
 			card.CustomMinimumSize = new Vector2(0, 220);
 			card.SizeFlagsHorizontal = SizeFlags.ExpandFill;
@@ -189,9 +220,9 @@ public partial class Top10Gallery : Control
 			if (tex != null) thumbBtn.TextureNormal = tex;
 			else thumbBtn.Disabled = true;
 
-			// score badge INSIDE image
+			// Score badge (top-left)
 			var badge = new PanelContainer();
-			badge.MouseFilter = MouseFilterEnum.Ignore;
+			badge.MouseFilter = MouseFilterEnum.Ignore; // click-through
 			badge.SetAnchorsPreset(LayoutPreset.TopLeft);
 			badge.OffsetLeft = 14;
 			badge.OffsetTop = 14;
@@ -216,52 +247,7 @@ public partial class Top10Gallery : Control
 		}
 	}
 
-	private void ShowList()
-	{
-		_selected = null;
-		SetHeaderMode(detail: false);
-
-		if (_detailView != null) _detailView.Visible = false;
-		if (_scroll != null) _scroll.Visible = true;
-	}
-
-	private void OpenDetail(Entry e)
-	{
-		_selected = e;
-		SetHeaderMode(detail: true);
-
-		if (_detailImage != null)
-		{
-			_detailImage.Texture = LoadTexture(e.Png);
-			// ép lại padding để vẫn còn header + bottom bar
-			_detailImage.OffsetLeft = 48;
-			_detailImage.OffsetTop = 18;
-			_detailImage.OffsetRight = -48;
-			_detailImage.OffsetBottom = -120;
-		}
-
-		if (_share != null)
-		{
-			_share.CustomMinimumSize = new Vector2(110, 36);
-			_share.AddThemeFontSizeOverride("font_size", 18);
-		}
-
-		if (_scroll != null) _scroll.Visible = false;
-		if (_detailView != null) _detailView.Visible = true;
-	}
-
-	private void CloseDetail()
-	{
-		ShowList();
-	}
-
-	private void CloseAll()
-	{
-		ShowList();
-		Hide();
-	}
-
-	// ===== STYLE =====
+	// ====== STYLE HELPERS ======
 
 	private StyleBoxFlat CreateBadgeStyle()
 	{
@@ -278,11 +264,12 @@ public partial class Top10Gallery : Control
 	private void ApplyGoldText(Control c, int fontSize)
 	{
 		c.AddThemeColorOverride("font_color", new Color(0.9843137f, 0.89411765f, 0.6862745f, 1f));
-		if (_uiFont != null) c.AddThemeFontOverride("font", _uiFont);
+		if (_uiFont != null)
+			c.AddThemeFontOverride("font", _uiFont);
 		c.AddThemeFontSizeOverride("font_size", fontSize);
 	}
 
-	// ===== SHARE =====
+	// ====== SHARE ======
 
 	private void ShareSelected()
 	{
@@ -296,6 +283,7 @@ public partial class Top10Gallery : Control
 			return;
 		}
 
+		// TODO: share native on mobile (Android/iOS plugin). For now: open file / copy path.
 		DisplayServer.ClipboardSet(abs);
 
 		if (OS.HasFeature("windows") || OS.HasFeature("macos") || OS.HasFeature("linux"))
@@ -308,7 +296,7 @@ public partial class Top10Gallery : Control
 		OS.Alert("Ảnh đã được lưu. Bạn có thể mở ảnh và dùng Share từ hệ điều hành.\n\nĐường dẫn:\n" + abs, "Share");
 	}
 
-	// ===== STORAGE =====
+	// ====== STORAGE ======
 
 	private void EnsureDirs()
 	{
@@ -362,27 +350,5 @@ public partial class Top10Gallery : Control
 		{
 			return null;
 		}
-	}
-
-	// ===== helpers =====
-
-	private T SafeGetNode<T>(NodePath exported, string fallbackPath) where T : Node
-	{
-		if (exported.ToString() != "")
-		{
-			var n = GetNodeOrNull<T>(exported);
-			if (n != null) return n;
-		}
-		return GetNode<T>(fallbackPath);
-	}
-
-	private T SafeGetNodeOrNull<T>(NodePath exported, string fallbackPath) where T : Node
-	{
-		if (exported.ToString() != "")
-		{
-			var n = GetNodeOrNull<T>(exported);
-			if (n != null) return n;
-		}
-		return GetNodeOrNull<T>(fallbackPath);
 	}
 }
