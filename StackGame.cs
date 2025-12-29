@@ -45,6 +45,7 @@ public partial class StackGame : Node2D
 	private Label _comboLabel;
 	private Label _perfectLabel;
 	private Button _restartButton;
+	private Button _topButton;
 
 	private class FallingPiece
 	{
@@ -77,6 +78,7 @@ public partial class StackGame : Node2D
 		_scoreLabel = GetNode<Label>("../HUD/TopCenterBox/ScoreLabel");
 		_bestLabel = GetNode<Label>("../HUD/BestLabel");
 		_restartButton = GetNode<Button>("../HUD/RestartButton");
+		_topButton = GetNode<Button>("../HUD/Top10Button");
 		_comboLabel = GetNode<Label>("../HUD/TopCenterBox/ComboLabel");
 		_perfectLabel = GetNode<Label>("../HUD/TopCenterBox/PerfectLabel");
 		_gameOverOverlay = GetNode<ColorRect>("../HUD/GameOverOverlay");
@@ -88,8 +90,8 @@ public partial class StackGame : Node2D
 		_restartButton.Pressed += OnRestartPressed;
 		_restartButton.Visible = false;
 
-		var btn = GetNode<Button>("../HUD/Top10Button");
-		btn.Pressed += () => _top10.ShowGallery();
+		_topButton.Pressed += () => _top10.ShowGallery();
+		_topButton.Visible = false;
 
 		_viewSize = GetViewportRect().Size;
 
@@ -256,7 +258,7 @@ public partial class StackGame : Node2D
 		UpdateHud();
 		_restartButton.Visible = false;
 		_gameOverOverlay.Visible = false;
-		_restartButton.Visible = false;
+		_topButton.Visible = false;
 
 		BlockNode baseBlock = CreateBlock(StartWidth, BlockHeight, GetPaletteColor(0));
 		baseBlock.Position = new Vector2(0, BaseY);
@@ -417,18 +419,18 @@ public partial class StackGame : Node2D
 		EmitSignal(SignalName.GameOverHappened);
 		_restartButton.Visible = true;
 		_gameOverOverlay.Visible = true;
-		_restartButton.Visible = true;
+		_topButton.Visible = true;
 		_gameOverOverlay.Modulate = new Color(1, 1, 1, 0);
-		_restartButton.Modulate = new Color(1, 1, 1, 0);
-		_restartButton.Scale = new Vector2(0.95f, 0.95f);
+		//_restartButton.Modulate = new Color(1, 1, 1, 0);
+		//_restartButton.Scale = new Vector2(0.95f, 0.95f);
 		_fxSfx?.PlayGameOver();
 		var tw = CreateTween();
 		tw.SetParallel(true);
 		tw.TweenProperty(_gameOverOverlay, "modulate:a", 1f, 0.2f);
-		tw.TweenProperty(_restartButton, "modulate:a", 1f, 0.25f);
-		tw.TweenProperty(_restartButton, "scale", Vector2.One, 0.25f)
-		  .SetTrans(Tween.TransitionType.Cubic)
-		  .SetEase(Tween.EaseType.Out);
+		//tw.TweenProperty(_restartButton, "modulate:a", 1f, 0.25f);
+		//tw.TweenProperty(_restartButton, "scale", Vector2.One, 0.25f)
+		//  .SetTrans(Tween.TransitionType.Cubic)
+		//  .SetEase(Tween.EaseType.Out);
 		GameOverZoomOutToFit();
 	}
 

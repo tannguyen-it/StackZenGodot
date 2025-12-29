@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://bkeq4ow01wdt3"]
+[gd_scene load_steps=19 format=3 uid="uid://bkeq4ow01wdt3"]
 
 [ext_resource type="Script" uid="uid://bao4bmurqd4xo" path="res://MainController.cs" id="1_cm0pq"]
 [ext_resource type="Script" uid="uid://inbcgtfk64r0" path="res://StackGame.cs" id="1_glv2v"]
@@ -53,11 +53,6 @@ corner_radius_bottom_left = 30
 shadow_color = Color(0.105882354, 0.16470589, 0.23137255, 1)
 shadow_size = 10
 
-[sub_resource type="Theme" id="Theme_20pc6"]
-
-[sub_resource type="FontVariation" id="FontVariation_5vvyt"]
-base_font = ExtResource("4_font")
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_cm0pq"]
 shader = ExtResource("3_r0du0")
 shader_parameter/col_center = Color(0.196, 0.259, 0.333, 1)
@@ -110,14 +105,14 @@ color = Color(0, 0, 0, 0)
 
 [node name="RestartButton" type="Button" parent="HUD"]
 custom_minimum_size = Vector2(200, 40)
-anchors_preset = -1
+anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -115.0
+offset_left = -211.0
 offset_top = -34.0
-offset_right = 115.0
+offset_right = -11.0
 offset_bottom = 26.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -129,6 +124,28 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_fos0i")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_03owx")
 theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
 text = "RESTART"
+
+[node name="Top10Button" type="Button" parent="HUD"]
+custom_minimum_size = Vector2(192, 40)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 30.0
+offset_top = -34.0
+offset_right = 222.0
+offset_bottom = 26.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(60, -65)
+theme_override_colors/font_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 27
+theme_override_styles/normal = SubResource("StyleBoxFlat_fos0i")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_03owx")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
+text = "TOP"
 
 [node name="TopCenterBox" type="VBoxContainer" parent="HUD"]
 anchors_preset = 5
@@ -170,21 +187,6 @@ text = "Perfect!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Top10Button" type="Button" parent="HUD"]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -120.0
-offset_top = 75.0
-offset_right = -13.0
-offset_bottom = 138.0
-grow_horizontal = 0
-theme = SubResource("Theme_20pc6")
-theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
-theme_override_fonts/font = SubResource("FontVariation_5vvyt")
-theme_override_font_sizes/font_size = 45
-text = "TOP"
-
 [node name="Top10Overlay" type="Control" parent="HUD"]
 visible = false
 layout_mode = 3
@@ -208,15 +210,9 @@ color = Color(0, 0, 0, 1)
 
 [node name="Panel" type="PanelContainer" parent="HUD/Top10Overlay"]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 700.0
-offset_bottom = 880.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 

@@ -58,7 +58,6 @@ public partial class Top10Gallery : Control
 		string absPngPath = ProjectSettings.GlobalizePath(userPngPath);
 
 		shot.SavePng(absPngPath);
-		GD.Print($"[Top10] Saved PNG => {absPngPath} exists={System.IO.File.Exists(absPngPath)}");
 
 		// update JSON
 		var list = Load();
@@ -72,7 +71,6 @@ public partial class Top10Gallery : Control
 			.ToList();
 
 		Save(list);
-		GD.Print($"[Top10] Saved JSON => {ProjectSettings.GlobalizePath(DataPath)}");
 	}
 
 	// ====== INTERNAL ======
@@ -81,9 +79,7 @@ public partial class Top10Gallery : Control
 	{
 		foreach (var c in _list.GetChildren())
 			c.QueueFree();
-		GD.Print($"[Top10] RefreshUI: list children before={_list.GetChildCount()}");
 		var list = Load().OrderByDescending(x => x.Score).ToList();
-		GD.Print($"[Top10] Entries count={list.Count}");
 
 		//var list = Load().OrderByDescending(x => x.Score).ToList();
 		if (list.Count == 0)
@@ -158,40 +154,32 @@ public partial class Top10Gallery : Control
 
 	private Texture2D LoadTexture(string userPath)
 	{
-		GD.Print($"[Top10] LoadTexture userPath={userPath}");
-
 		if (string.IsNullOrEmpty(userPath)) return null;
 
 		string abs = ProjectSettings.GlobalizePath(userPath);
-		GD.Print($"[Top10] absPath={abs}");
 
 		if (!System.IO.File.Exists(abs))
 		{
-			GD.PrintErr($"[Top10] Missing file: {abs}");
 			return null;
 		}
 
 		try
 		{
 			byte[] bytes = System.IO.File.ReadAllBytes(abs);
-			GD.Print($"[Top10] bytes={bytes.Length}");
 
 			var img = new Image();
 			// Godot 4: dùng LoadPngFromBuffer chắc chắn nhất
 			var err = img.LoadPngFromBuffer(bytes);
 			if (err != Error.Ok)
 			{
-				GD.PrintErr($"[Top10] LoadPngFromBuffer failed: {err} path={abs}");
 				return null;
 			}
 
 			var tex = ImageTexture.CreateFromImage(img);
-			GD.Print($"[Top10] texture created: {(tex != null)} size={img.GetSize()}");
 			return tex;
 		}
 		catch (System.Exception ex)
 		{
-			GD.PrintErr($"[Top10] Exception load texture: {ex.Message}");
 			return null;
 		}
 	}

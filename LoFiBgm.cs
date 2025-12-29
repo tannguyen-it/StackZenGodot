@@ -41,7 +41,6 @@ public partial class LoFiBgm : AudioStreamPlayer
 		var gen = Stream as AudioStreamGenerator;
 		if (gen == null)
 		{
-			GD.PrintErr("LoFiBgm: Stream must be AudioStreamGenerator.");
 			return;
 		}
 
