@@ -200,7 +200,7 @@ ScrollPath = NodePath("Panel/RootVBox/Body/Scroll")
 ListPath = NodePath("Panel/RootVBox/Body/Scroll/ScrollRoot/List")
 DetailViewPath = NodePath("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail")
 DetailImagePath = NodePath("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/DetailImage")
-ShareButtonPath = NodePath("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/BottomBar/ShareButton")
+ShareButtonPath = NodePath("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/DetailImage/BottomBar/ShareButton")
 CloseButtonPath = NodePath("Panel/RootVBox/HeaderBar/CloseButton")
 BackButtonPath = NodePath("Panel/RootVBox/HeaderBar/BackButton")
 LeftSpacerPath = NodePath("Panel/RootVBox/HeaderBar/LeftSpacer")
@@ -261,7 +261,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 theme_override_fonts/font = ExtResource("4_font")
 theme_override_font_sizes/font_size = 34
-text = "TOP 10 TOWERS"
+text = "TOP"
 horizontal_alignment = 1
 
 [node name="CloseButton" type="Button" parent="HUD/Top10Overlay/Panel/RootVBox/HeaderBar"]
@@ -319,13 +319,20 @@ size_flags_vertical = 3
 expand_mode = 1
 stretch_mode = 5
 
-[node name="BottomBar" type="HBoxContainer" parent="HUD/Top10Overlay/Panel/RootVBox/Body/Scroll/ScrollRoot/Detail"]
+[node name="BottomBar" type="HBoxContainer" parent="HUD/Top10Overlay/Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/DetailImage"]
 custom_minimum_size = Vector2(0, 72)
-layout_mode = 2
-size_flags_horizontal = 3
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -94.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
 alignment = 1
 
-[node name="ShareButton" type="Button" parent="HUD/Top10Overlay/Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/BottomBar"]
+[node name="ShareButton" type="Button" parent="HUD/Top10Overlay/Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/DetailImage/BottomBar"]
 custom_minimum_size = Vector2(110, 34)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
@@ -335,6 +342,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_fos0i")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_03owx")
 theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
 text = "SHARE"
+
 [node name="StartScreen" type="CanvasLayer" parent="."]
 
 [node name="UIRoot" type="Control" parent="StartScreen"]

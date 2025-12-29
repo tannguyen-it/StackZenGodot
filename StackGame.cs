@@ -100,7 +100,7 @@ public partial class StackGame : Node2D
 		Position = new Vector2(_viewSize.X / 2f, _cameraOffsetY);
 
 		_best = (int)ProjectSettings.GetSetting("stackzen/best_score", 0);
-		_best = 0;
+		//_best = 0;
 		UpdateHud();
 
 		//RestartGame();

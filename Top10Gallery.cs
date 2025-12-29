@@ -61,6 +61,7 @@ public partial class Top10Gallery : Control
 					   ?? GetNodeOrNull<TextureRect>("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/DetailImage");
 
 		_share = GetNodeOrNull<Button>(ShareButtonPath)
+				 ?? GetNodeOrNull<Button>("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/DetailImage/BottomBar/ShareButton")
 				 ?? GetNodeOrNull<Button>("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/BottomBar/ShareButton");
 
 		_close = GetNodeOrNull<Button>(CloseButtonPath)
@@ -134,7 +135,7 @@ public partial class Top10Gallery : Control
 
 		if (_title != null)
 		{
-			_title.Text = "TOP 10";
+			_title.Text = "TOP";
 			_title.HorizontalAlignment = HorizontalAlignment.Center;
 		}
 	}
@@ -194,7 +195,7 @@ public partial class Top10Gallery : Control
 		var list = Load().OrderByDescending(x => x.Score).ToList();
 		if (list.Count == 0)
 		{
-			var empty = new Label { Text = "Chưa có dữ liệu. Hãy chơi để tạo Top 10!" };
+			var empty = new Label { Text = "" };
 			ApplyGoldText(empty, 24);
 			_list.AddChild(empty);
 			return;
@@ -279,7 +280,7 @@ public partial class Top10Gallery : Control
 		string abs = ProjectSettings.GlobalizePath(_selected.Png);
 		if (!File.Exists(abs))
 		{
-			OS.Alert("Không tìm thấy file ảnh để share.", "Share");
+			//OS.Alert("Không tìm thấy file ảnh để share.", "Share");
 			return;
 		}
 
@@ -293,7 +294,7 @@ public partial class Top10Gallery : Control
 		}
 
 		OS.ShellOpen(abs);
-		OS.Alert("Ảnh đã được lưu. Bạn có thể mở ảnh và dùng Share từ hệ điều hành.\n\nĐường dẫn:\n" + abs, "Share");
+		//OS.Alert("Ảnh đã được lưu. Bạn có thể mở ảnh và dùng Share từ hệ điều hành.\n\nĐường dẫn:\n" + abs, "Share");
 	}
 
 	// ====== STORAGE ======
@@ -330,7 +331,7 @@ public partial class Top10Gallery : Control
 		}
 		catch (Exception ex)
 		{
-			GD.PrintErr("[Top10] Save failed: " + ex.Message);
+			//GD.PrintErr("[Top10] Save failed: " + ex.Message);
 		}
 	}
 
