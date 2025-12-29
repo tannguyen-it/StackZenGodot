@@ -196,8 +196,11 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("5_wkp8b")
-ListPath = NodePath("Panel/VBox/Scroll/List")
-CloseButtonPath = NodePath("Panel/VBox/Header/CloseButton")
+ListPath = NodePath("Panel/RootVBox/Body/Scroll/List")
+CloseButtonPath = NodePath("Panel/RootVBox/HeaderBar/CloseButton")
+BackButtonPath = NodePath("Panel/RootVBox/HeaderBar/BackButton")
+LeftSpacerPath = NodePath("Panel/RootVBox/HeaderBar/LeftSpacer")
+TitlePath = NodePath("Panel/RootVBox/HeaderBar/Title")
 
 [node name="Dim" type="ColorRect" parent="HUD/Top10Overlay"]
 layout_mode = 1
@@ -206,9 +209,95 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 1)
+mouse_filter = 2
+color = Color(0, 0, 0, 0.6)
 
 [node name="Panel" type="PanelContainer" parent="HUD/Top10Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RootVBox" type="VBoxContainer" parent="HUD/Top10Overlay/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="HeaderBar" type="HBoxContainer" parent="HUD/Top10Overlay/Panel/RootVBox"]
+z_index = 50
+z_as_relative = false
+custom_minimum_size = Vector2(0, 78)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LeftSpacer" type="Control" parent="HUD/Top10Overlay/Panel/RootVBox/HeaderBar"]
+custom_minimum_size = Vector2(72, 56)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="BackButton" type="Button" parent="HUD/Top10Overlay/Panel/RootVBox/HeaderBar"]
+visible = false
+custom_minimum_size = Vector2(72, 56)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_fos0i")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_03owx")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
+text = "<"
+
+[node name="Title" type="Label" parent="HUD/Top10Overlay/Panel/RootVBox/HeaderBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 34
+text = "TOP 10 TOWERS"
+horizontal_alignment = 1
+
+[node name="CloseButton" type="Button" parent="HUD/Top10Overlay/Panel/RootVBox/HeaderBar"]
+custom_minimum_size = Vector2(72, 56)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_fos0i")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_03owx")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
+text = "X"
+
+[node name="Body" type="Control" parent="HUD/Top10Overlay/Panel/RootVBox"]
+z_as_relative = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Scroll" type="ScrollContainer" parent="HUD/Top10Overlay/Panel/RootVBox/Body"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_right = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="List" type="VBoxContainer" parent="HUD/Top10Overlay/Panel/RootVBox/Body/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="DetailView" type="Control" parent="HUD/Top10Overlay/Panel/RootVBox/Body"]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -216,28 +305,50 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBox" type="VBoxContainer" parent="HUD/Top10Overlay/Panel"]
-layout_mode = 2
+[node name="DetailCloseBg" type="Button" parent="HUD/Top10Overlay/Panel/RootVBox/Body/DetailView"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 0
+flat = true
 
-[node name="Header" type="HBoxContainer" parent="HUD/Top10Overlay/Panel/VBox"]
-layout_mode = 2
+[node name="DetailImage" type="TextureRect" parent="HUD/Top10Overlay/Panel/RootVBox/Body/DetailView"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 48.0
+offset_top = 18.0
+offset_right = -48.0
+offset_bottom = -140.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch_mode = 5
 
-[node name="Title" type="Label" parent="HUD/Top10Overlay/Panel/VBox/Header"]
-layout_mode = 2
-text = "TOP 10 TOWERS"
+[node name="BottomBar" type="HBoxContainer" parent="HUD/Top10Overlay/Panel/RootVBox/Body/DetailView"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -120.0
+grow_horizontal = 2
+grow_vertical = 0
+alignment = 1
 
-[node name="CloseButton" type="Button" parent="HUD/Top10Overlay/Panel/VBox/Header"]
+[node name="ShareButton" type="Button" parent="HUD/Top10Overlay/Panel/RootVBox/Body/DetailView/BottomBar"]
+custom_minimum_size = Vector2(100, 34)
 layout_mode = 2
-text = "X"
-
-[node name="Scroll" type="ScrollContainer" parent="HUD/Top10Overlay/Panel/VBox"]
-custom_minimum_size = Vector2(650, 650)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="List" type="VBoxContainer" parent="HUD/Top10Overlay/Panel/VBox/Scroll"]
-layout_mode = 2
-size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_fos0i")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_03owx")
+theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
+text = "SHARE"
 
 [node name="StartScreen" type="CanvasLayer" parent="."]
 
@@ -315,7 +426,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 
 [node name="BgmPlayer" type="AudioStreamPlayer" parent="."]
 stream = SubResource("AudioStreamGenerator_3dxm6")
