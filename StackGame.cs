@@ -46,6 +46,7 @@ public partial class StackGame : Node2D
 	private Label _perfectLabel;
 	private Button _restartButton;
 	private Button _topButton;
+	private Control _titleWrap;
 
 	private class FallingPiece
 	{
@@ -86,7 +87,8 @@ public partial class StackGame : Node2D
 		_fxSfx = GetNode<FxSfx>("../FxPlayer");
 		_hud = GetNode<CanvasLayer>("../HUD");
 		_top10 = GetNode<Top10Gallery>("../HUD/Top10Overlay");
-
+		_titleWrap = GetNode<Control>("../HUD/LogoWrap");
+		_titleWrap.Visible = false;
 		_restartButton.Pressed += OnRestartPressed;
 		_restartButton.Visible = false;
 
@@ -259,6 +261,7 @@ public partial class StackGame : Node2D
 		_restartButton.Visible = false;
 		_gameOverOverlay.Visible = false;
 		_topButton.Visible = false;
+		_titleWrap.Visible = false;
 
 		BlockNode baseBlock = CreateBlock(StartWidth, BlockHeight, GetPaletteColor(0));
 		baseBlock.Position = new Vector2(0, BaseY);
@@ -420,6 +423,8 @@ public partial class StackGame : Node2D
 		_restartButton.Visible = true;
 		_gameOverOverlay.Visible = true;
 		_topButton.Visible = true;
+		_titleWrap.Visible = true;
+
 		_gameOverOverlay.Modulate = new Color(1, 1, 1, 0);
 		//_restartButton.Modulate = new Color(1, 1, 1, 0);
 		//_restartButton.Scale = new Vector2(0.95f, 0.95f);
@@ -682,7 +687,8 @@ public partial class StackGame : Node2D
 		if (_comboLabel != null) _comboLabel.Visible = false;
 		if (_perfectLabel != null) _perfectLabel.Visible = false;
 		if (topBtn != null) topBtn.Visible = false;
-
+		//if (_titleWrap != null) _titleWrap.Visible = true;
+		
 		//Save pose hiện tại (để restore)
 		Vector2 oldPos = Position;
 		Vector2 oldScale = Scale;

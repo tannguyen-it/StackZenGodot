@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://bkeq4ow01wdt3"]
+[gd_scene load_steps=20 format=3 uid="uid://bkeq4ow01wdt3"]
 
 [ext_resource type="Script" uid="uid://bao4bmurqd4xo" path="res://MainController.cs" id="1_cm0pq"]
 [ext_resource type="Script" uid="uid://inbcgtfk64r0" path="res://StackGame.cs" id="1_glv2v"]
@@ -7,6 +7,7 @@
 [ext_resource type="FontFile" uid="uid://datltp3uuxxut" path="res://UI/Fredoka-VariableFont_wdth,wght.ttf" id="4_font"]
 [ext_resource type="Script" uid="uid://bp6cvytt1y3df" path="res://Top10Gallery.cs" id="5_wkp8b"]
 [ext_resource type="Script" uid="uid://basac6mr1xqws" path="res://LoFiBgm.cs" id="6_3dxm6"]
+[ext_resource type="Script" uid="uid://dn1cnwcd0ug6v" path="res://addons/SharePlugin/Share.gd" id="6_20pc6"]
 [ext_resource type="Script" uid="uid://bs0h2vrckapbo" path="res://ClickSfx.cs" id="7_lgr22"]
 [ext_resource type="Script" uid="uid://b4thjqpf760rb" path="res://FxSfx.cs" id="8_trn2v"]
 [ext_resource type="Script" uid="uid://cnvlgvssl1uy2" path="res://GameBgmArcade.cs" id="9_03owx"]
@@ -81,14 +82,14 @@ BlockScene = ExtResource("2_uu6xs")
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -162.0
-offset_top = 10.0
-offset_right = -13.0
-offset_bottom = 65.0
+offset_left = -290.0
+offset_top = 50.0
+offset_right = -65.0
+offset_bottom = 134.0
 grow_horizontal = 0
 theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 45
+theme_override_font_sizes/font_size = 68
 text = "BEST 0"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -110,16 +111,16 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -211.0
+offset_left = -260.0
 offset_top = -34.0
-offset_right = -11.0
-offset_bottom = 26.0
+offset_right = -60.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
 pivot_offset = Vector2(60, -65)
 theme_override_colors/font_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 27
+theme_override_font_sizes/font_size = 35
 theme_override_styles/normal = SubResource("StyleBoxFlat_fos0i")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_03owx")
 theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
@@ -132,16 +133,16 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 30.0
+offset_left = 60.0
 offset_top = -34.0
-offset_right = 222.0
-offset_bottom = 26.0
+offset_right = 260.0
+offset_bottom = 36.0
 grow_horizontal = 2
 grow_vertical = 2
 pivot_offset = Vector2(60, -65)
 theme_override_colors/font_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 27
+theme_override_font_sizes/font_size = 35
 theme_override_styles/normal = SubResource("StyleBoxFlat_fos0i")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_03owx")
 theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
@@ -151,9 +152,10 @@ text = "TOP"
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -20.0
-offset_right = 20.0
-offset_bottom = 40.0
+offset_left = -96.0
+offset_top = 225.0
+offset_right = 142.0
+offset_bottom = 593.0
 grow_horizontal = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
@@ -164,16 +166,15 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 70
+theme_override_font_sizes/font_size = 86
 text = "0"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="ComboLabel" type="Label" parent="HUD/TopCenterBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 35
+theme_override_font_sizes/font_size = 68
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -182,7 +183,7 @@ modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 35
+theme_override_font_sizes/font_size = 68
 text = "Perfect!"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -343,6 +344,25 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_03owx")
 theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
 text = "SHARE"
 
+[node name="ShareImage" type="Node" parent="HUD/Top10Overlay/Panel"]
+script = ExtResource("6_20pc6")
+
+[node name="LogoWrap" type="CenterContainer" parent="HUD"]
+visible = false
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 36.0
+offset_bottom = 171.0
+grow_horizontal = 2
+
+[node name="LogoLabel" type="Label" parent="HUD/LogoWrap"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 115
+text = "STACK ZEN"
+horizontal_alignment = 1
+
 [node name="StartScreen" type="CanvasLayer" parent="."]
 
 [node name="UIRoot" type="Control" parent="StartScreen"]
@@ -365,8 +385,9 @@ grow_horizontal = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 92
+theme_override_font_sizes/font_size = 115
 text = "STACK ZEN"
+horizontal_alignment = 1
 
 [node name="TapWrap" type="CenterContainer" parent="StartScreen/UIRoot"]
 layout_mode = 1
@@ -383,7 +404,7 @@ grow_vertical = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 50
 text = "Tap to play"
 horizontal_alignment = 1
 

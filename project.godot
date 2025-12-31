@@ -10,20 +10,29 @@ config_version=5
 
 [application]
 
-config/name="StackZenGodot"
+config/name="Stack Zen"
 run/main_scene="uid://bkeq4ow01wdt3"
 config/features=PackedStringArray("4.5", "C#", "Mobile")
-config/icon="res://icon.svg"
+boot_splash/image="uid://msb0ba32rti2"
+config/icon="uid://j0iikgiyxodm"
 
 [display]
 
-window/size/viewport_width=720
+window/size/viewport_width=1080
+window/size/viewport_height=1920
+window/size/mode=3
 window/size/resizable=false
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
 
 [dotnet]
 
 project/assembly_name="StackZenGodot"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/SharePlugin/plugin.cfg")
 
 [gui]
 
@@ -31,8 +40,10 @@ theme/custom="uid://bmqp63gvwoidb"
 
 [rendering]
 
-renderer/rendering_method="mobile"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
 
 [stackzen]
 
-best_score=7
+best_score=36

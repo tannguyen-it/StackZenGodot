@@ -13,6 +13,7 @@ public partial class Top10Gallery : Control
 	[Export] public NodePath DetailViewPath = new NodePath("");
 	[Export] public NodePath DetailImagePath = new NodePath("");
 	[Export] public NodePath ShareButtonPath = new NodePath("");
+	[Export] public NodePath NativeSharePath = new NodePath("");
 
 	[Export] public NodePath CloseButtonPath = new NodePath("");
 	[Export] public NodePath BackButtonPath = new NodePath("");
@@ -24,11 +25,13 @@ public partial class Top10Gallery : Control
 	private VBoxContainer _detail;
 	private TextureRect _detailImage;
 	private Button _share;
+	private Node _nativeShare;
 
 	private Button _close;
 	private Button _back;
 	private Control _leftSpacer;
 	private Label _title;
+	private Control _titleWrap;
 
 	private Entry? _selected;
 	private FontFile? _uiFont;
@@ -64,6 +67,17 @@ public partial class Top10Gallery : Control
 				 ?? GetNodeOrNull<Button>("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/DetailImage/BottomBar/ShareButton")
 				 ?? GetNodeOrNull<Button>("Panel/RootVBox/Body/Scroll/ScrollRoot/Detail/BottomBar/ShareButton");
 
+		_nativeShare = GetNodeOrNull<Node>(NativeSharePath)
+					   ?? GetNodeOrNull<Node>("Panel/ShareImage");
+
+		GD.Print($"[Share] native node null? {_nativeShare == null}");
+		if (_nativeShare != null)
+		{
+			GD.Print($"[Share] has share_image? {_nativeShare.HasMethod("share_image")}");
+		}
+
+		_titleWrap = GetNode<Control>("../LogoWrap");
+
 		_close = GetNodeOrNull<Button>(CloseButtonPath)
 				 ?? GetNodeOrNull<Button>("Panel/RootVBox/HeaderBar/CloseButton");
 
@@ -86,12 +100,14 @@ public partial class Top10Gallery : Control
 		if (_scroll == null) GD.PushError("[Top10] Scroll not found. Check ScrollPath.");
 
 		CloseAll();
+		_titleWrap.Visible = false;
 	}
 
 	// ====== PUBLIC API ======
 
 	public void ShowGallery()
 	{
+		_titleWrap.Visible = false;
 		RefreshUI();
 		ShowList();
 		Show();
@@ -172,6 +188,7 @@ public partial class Top10Gallery : Control
 
 	private void CloseAll()
 	{
+		_titleWrap.Visible = true;
 		ShowList();
 		Hide();
 	}
@@ -277,23 +294,35 @@ public partial class Top10Gallery : Control
 		if (_selected == null) return;
 		if (string.IsNullOrEmpty(_selected.Png)) return;
 
-		string abs = ProjectSettings.GlobalizePath(_selected.Png);
-		if (!File.Exists(abs))
+		string absSrc = ProjectSettings.GlobalizePath(_selected.Png);
+		if (!File.Exists(absSrc))
 		{
 			//OS.Alert("Không tìm thấy file ảnh để share.", "Share");
 			return;
 		}
 
-		// TODO: share native on mobile (Android/iOS plugin). For now: open file / copy path.
-		DisplayServer.ClipboardSet(abs);
-
 		if (OS.HasFeature("windows") || OS.HasFeature("macos") || OS.HasFeature("linux"))
 		{
-			OS.ShellShowInFileManager(abs);
+			// TODO: share native on mobile (Android/iOS plugin). For now: open file / copy path.
+			DisplayServer.ClipboardSet(absSrc);
+			OS.ShellShowInFileManager(absSrc);
 			return;
 		}
 
-		OS.ShellOpen(abs);
+		string absDst = ProjectSettings.GlobalizePath("user://share_result.png");
+		if (absSrc != absDst) File.Copy(absSrc, absDst, true);
+		if (_nativeShare != null)
+		{
+			_nativeShare.Call("share_image", absDst, "Stack Zen", "My Result", "Check out my result!");
+			return;
+		}
+
+		GD.Print($"[Share] src: {absSrc} exists={File.Exists(absSrc)}");
+		GD.Print($"[Share] dst: {absDst}");
+
+		// Fallback nếu chưa gắn plugin node
+		DisplayServer.ClipboardSet(absDst);
+		OS.ShellOpen(absDst);
 		//OS.Alert("Ảnh đã được lưu. Bạn có thể mở ảnh và dùng Share từ hệ điều hành.\n\nĐường dẫn:\n" + abs, "Share");
 	}
 
