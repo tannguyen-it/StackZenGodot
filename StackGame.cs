@@ -76,8 +76,8 @@ public partial class StackGame : Node2D
 
 	public override void _Ready()
 	{
-		_scoreLabel = GetNode<Label>("../HUD/TopCenterBox/ScoreLabel");
-		_bestLabel = GetNode<Label>("../HUD/BestLabel");
+		_scoreLabel = GetNode<Label>("../HUD/TopCenterBox/ScoreBestRow/ScoreLabel");
+		_bestLabel = GetNode<Label>("../HUD/TopCenterBox/ScoreBestRow/BestLabel");
 		_restartButton = GetNode<Button>("../HUD/RestartButton");
 		_topButton = GetNode<Button>("../HUD/Top10Button");
 		_comboLabel = GetNode<Label>("../HUD/TopCenterBox/ComboLabel");

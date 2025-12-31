@@ -78,22 +78,6 @@ BlockScene = ExtResource("2_uu6xs")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
-[node name="BestLabel" type="Label" parent="HUD"]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -290.0
-offset_top = 50.0
-offset_right = -65.0
-offset_bottom = 134.0
-grow_horizontal = 0
-theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
-theme_override_fonts/font = ExtResource("4_font")
-theme_override_font_sizes/font_size = 68
-text = "BEST 0"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="GameOverOverlay" type="ColorRect" parent="HUD"]
 visible = false
 anchors_preset = 15
@@ -149,26 +133,50 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_lgr22")
 text = "TOP"
 
 [node name="TopCenterBox" type="VBoxContainer" parent="HUD"]
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -96.0
-offset_top = 225.0
-offset_right = 142.0
-offset_bottom = 593.0
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 186.0
+offset_bottom = 479.0
 grow_horizontal = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 3
 size_flags_vertical = 0
 theme_override_constants/separation = 10
 alignment = 1
 
-[node name="ScoreLabel" type="Label" parent="HUD/TopCenterBox"]
+[node name="ScoreBestRow" type="Control" parent="HUD/TopCenterBox"]
 layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScoreLabel" type="Label" parent="HUD/TopCenterBox/ScoreBestRow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
 theme_override_fonts/font = ExtResource("4_font")
 theme_override_font_sizes/font_size = 86
 text = "0"
 horizontal_alignment = 1
+
+[node name="BestLabel" type="Label" parent="HUD/TopCenterBox/ScoreBestRow"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -45.0
+offset_top = -40.0
+offset_right = -45.0
+offset_bottom = 44.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.9843137, 0.89411765, 0.6862745, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 68
+text = "BEST 0"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="ComboLabel" type="Label" parent="HUD/TopCenterBox"]
 layout_mode = 2
