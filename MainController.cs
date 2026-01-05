@@ -26,7 +26,19 @@ public partial class MainController : Node2D
 	[Export] public Vector2 MenuGameOffset = new Vector2(0, -220);     // so với (screen center X, screen bottom)
 	[Export] public Vector2 PlayGameOffset = new Vector2(0, -260);     // so với (screen center X, screen center Y)
 
-	public override void _Ready()
+	
+	private Node _ads;
+
+	private void AdsCall(string methodName)
+	{
+		// Only for mobile exports
+		if (!OS.HasFeature("android") && !OS.HasFeature("ios"))
+			return;
+
+		_ads ??= GetNodeOrNull<Node>("/root/Ads");
+		_ads?.Call(methodName);
+	}
+public override void _Ready()
 	{
 		_startScreen = GetNode<CanvasLayer>("StartScreen");
 		_hud = GetNode<CanvasLayer>("HUD");
@@ -49,6 +61,8 @@ public partial class MainController : Node2D
 		_startScreen.Visible = true;
 		_hud.Visible = false;
 
+
+		AdsCall("on_start_screen");
 		// Dựng đúng 2 block menu preview ngay trong StackGame
 		_game.ShowMenuPreview();
 		_game.StopGame();                 // menu: không chạy _Process của game
@@ -115,6 +129,8 @@ public partial class MainController : Node2D
 
 	private void BeginStartTransition()
 	{
+		AdsCall("on_gameplay_start");
+
 		// start game bgm
 		if (!_gameBgm.Playing) _gameBgm.Play();
 		_gameBgm.VolumeDb = -60;
@@ -188,6 +204,8 @@ public partial class MainController : Node2D
 
 	private void OnGameOverMusic()
 	{
+		AdsCall("on_game_over");
+
 		// kill tween cũ nếu có
 		if (_musicTween != null && _musicTween.IsRunning())
 			_musicTween.Kill();
@@ -220,6 +238,8 @@ public partial class MainController : Node2D
 
 	private void OnRestartRequestedMusic()
 	{
+		AdsCall("on_gameplay_start");
+
 		FadeToGameMusic(); // hàm fade sang nhạc gameplay bạn đã có
 	}
 

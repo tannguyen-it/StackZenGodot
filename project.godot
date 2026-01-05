@@ -16,6 +16,10 @@ config/features=PackedStringArray("4.5", "C#", "Mobile")
 boot_splash/image="uid://msb0ba32rti2"
 config/icon="uid://j0iikgiyxodm"
 
+[autoload]
+
+Ads="res://Ads/Ads.gd"
+
 [display]
 
 window/size/viewport_width=1080
@@ -29,6 +33,10 @@ window/handheld/orientation=1
 [dotnet]
 
 project/assembly_name="StackZenGodot"
+
+[editor]
+
+version_control/autoload_on_startup=true
 
 [editor_plugins]
 

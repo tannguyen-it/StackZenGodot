@@ -1,0 +1,2 @@
+extends Node
+const APPLICATION_ID := "ca-app-pub-3940256099942544~3347511713" # TEST App ID
