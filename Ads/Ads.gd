@@ -2,11 +2,11 @@ extends Node
 class_name Ads
 
 # ====== CONFIG ======
-@export var interstitial_every_n_gameovers: int = 3
+@export var interstitial_every_n_gameovers: int = 5
 
 # Google TEST IDs (safe for local testing)
-const ANDROID_BANNER_ID := "ca-app-pub-3940256099942544/6300978111"
-const ANDROID_INTERSTITIAL_ID := "ca-app-pub-3940256099942544/1033173712"
+const ANDROID_BANNER_ID := "ca-app-pub-4144794869067184/3697213524"
+const ANDROID_INTERSTITIAL_ID := "ca-app-pub-4144794869067184/2384131854"
 
 # (Optional) iOS test IDs
 const IOS_BANNER_ID := "ca-app-pub-3940256099942544/2934735716"

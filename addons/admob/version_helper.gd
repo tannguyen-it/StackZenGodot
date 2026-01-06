@@ -23,18 +23,20 @@
 class_name PoingAdMobVersionHelper
 extends Object
 
-static var version_formated : String = _get_plugin_version_formated() :
-	set(value):
-		version_formated = _get_plugin_version_formated()
-
 static func get_plugin_version() -> String:
+	var version: String = "v3.1.2" # fallback (redundancy)
+
+	# Godot 4: kiểm tra file tồn tại trước khi load để không spam error
+	if not FileAccess.file_exists("res://addons/admob/plugin.cfg"):
+		return version
+
 	var plugin_config_file := ConfigFile.new()
-	var version: String = "v3.1.2" #redundancy
-	
-	if plugin_config_file.load("res://addons/admob/plugin.cfg") == OK:
-		version = plugin_config_file.get_value("plugin", "version")
-	else:
-		push_error("Failed to load plugin.cfg")
+	var err := plugin_config_file.load("res://addons/admob/plugin.cfg")
+	if err == OK:
+		# get_value có thể null nếu thiếu key
+		var v = plugin_config_file.get_value("plugin", "version", version)
+		if typeof(v) == TYPE_STRING and v != "":
+			version = v
 	return version
 
 static func _get_plugin_version_formated() -> String:
