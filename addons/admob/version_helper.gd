@@ -23,30 +23,38 @@
 class_name PoingAdMobVersionHelper
 extends Object
 
-static func get_plugin_version() -> String:
-	var version: String = "v3.1.2" # fallback (redundancy)
+# Plugin code bên trong đang gọi đúng tên "version_formated" (cố tình viết vậy),
+# nên phải giữ y nguyên tên biến này.
+static var version_formated: String = _get_plugin_version_formated()
 
-	# Godot 4: kiểm tra file tồn tại trước khi load để không spam error
-	if not FileAccess.file_exists("res://addons/admob/plugin.cfg"):
+static func get_plugin_version() -> String:
+	var version := "v3.1.2" # fallback
+
+	# Trong Godot 4 export, file plugin.cfg có thể không tồn tại -> không được push_error spam log
+	var path := "res://addons/admob/plugin.cfg"
+	if not FileAccess.file_exists(path):
 		return version
 
 	var plugin_config_file := ConfigFile.new()
-	var err := plugin_config_file.load("res://addons/admob/plugin.cfg")
+	var err := plugin_config_file.load(path)
 	if err == OK:
-		# get_value có thể null nếu thiếu key
+		# có default để tránh null
 		var v = plugin_config_file.get_value("plugin", "version", version)
 		if typeof(v) == TYPE_STRING and v != "":
 			version = v
+
 	return version
 
 static func _get_plugin_version_formated() -> String:
 	var version := get_plugin_version()
-	
-	var pattern = RegEx.new()
+
+	var pattern := RegEx.new()
 	pattern.compile("(?:v)?(\\d+\\.\\d+\\.\\d+)")
-	
-	var matchs := pattern.search(version)
-	if matchs != null:
-		version = matchs.get_string(1)
+
+	var m := pattern.search(version)
+	if m != null:
+		version = m.get_string(1)
+
 	return version
+
 

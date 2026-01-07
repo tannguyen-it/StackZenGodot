@@ -38,6 +38,9 @@ public partial class StackGame : Node2D
 
 	private int _score;
 	private int _best;
+	// Mark when BEST improved; we update HUD immediately, but save to disk only on GameOver/ExitTree.
+	private bool _bestDirty;
+	private const string BestCfgPath = "user://stackzen.cfg";
 	private int _combo;
 
 	private Label _scoreLabel;
@@ -101,7 +104,7 @@ public partial class StackGame : Node2D
 		_cameraOffsetY = 0f;
 		Position = new Vector2(_viewSize.X / 2f, _cameraOffsetY);
 
-		_best = (int)ProjectSettings.GetSetting("stackzen/best_score", 0);
+		_best = LoadBestScore();
 		//_best = 0;
 		UpdateHud();
 
@@ -110,6 +113,33 @@ public partial class StackGame : Node2D
 		SetProcess(false);
 		SetProcessUnhandledInput(false);
 		StopGame();
+	}
+
+	// ===== BEST SCORE PERSISTENCE (user://) =====
+	private int LoadBestScore()
+	{
+		var cfg = new ConfigFile();
+		var err = cfg.Load(BestCfgPath);
+		if (err == Error.Ok)
+		{
+			return (int)cfg.GetValue("scores", "best", 0);
+		}
+		return 0;
+	}
+
+	private void SaveBestScoreIfNeeded()
+	{
+		// 2) Save BEST to disk only when needed (GameOver/ExitTree)
+		if (!_bestDirty) return;
+		var cfg = new ConfigFile();
+		cfg.SetValue("scores", "best", _best);
+		cfg.Save(BestCfgPath);
+		_bestDirty = false;
+	}
+
+	public override void _ExitTree()
+	{
+		SaveBestScoreIfNeeded();
 	}
 
 	public override void _Process(double delta)
@@ -146,10 +176,8 @@ public partial class StackGame : Node2D
 			fp.Opacity -= FadeSpeed * dt;
 			if (fp.Opacity < 0f) fp.Opacity = 0f;
 
-			Color col = fp.Node.BaseColor;
-			col.A = fp.Opacity;
-			fp.Node.BaseColor = col;
-			fp.Node.QueueRedraw();
+			// Fade bằng Modulate (nhẹ hơn rất nhiều so với đổi BaseColor + QueueRedraw mỗi frame)
+			fp.Node.Modulate = new Color(1, 1, 1, fp.Opacity);
 
 			if (fp.Node.Position.Y > DespawnY || fp.Opacity <= 0f)
 			{
@@ -198,18 +226,10 @@ public partial class StackGame : Node2D
 	private void UpdateCamera()
 	{
 		if (_isGameOver) return;
-		if (_placed.Count == 0)
-			return;
+		if (_placed.Count == 0) return;
 
-		float topY = _placed[0].Position.Y;
-		foreach (var b in _placed)
-		{
-			if (b.Position.Y < topY)
-				topY = b.Position.Y;
-		}
-
-		if (_current != null && _current.Position.Y < topY)
-			topY = _current.Position.Y;
+		// O(1): topY của tháp chính là block mới nhất; nếu có _current thì nó luôn là block cao nhất
+		float topY = (_current != null) ? _current.Position.Y : _placed[_placed.Count - 1].Position.Y;
 
 		float targetTopScreenY = _viewSize.Y * 0.38f;
 		float targetOffset = targetTopScreenY - topY;
@@ -220,18 +240,9 @@ public partial class StackGame : Node2D
 
 	private void SnapCameraToTop()
 	{
-		if (_placed.Count == 0)
-			return;
+		if (_placed.Count == 0) return;
 
-		float topY = _placed[0].Position.Y;
-		foreach (var b in _placed)
-		{
-			if (b.Position.Y < topY)
-				topY = b.Position.Y;
-		}
-
-		if (_current != null && _current.Position.Y < topY)
-			topY = _current.Position.Y;
+		float topY = (_current != null) ? _current.Position.Y : _placed[_placed.Count - 1].Position.Y;
 
 		float targetTopScreenY = _viewSize.Y * 0.38f;
 		_cameraOffsetY = targetTopScreenY - topY;
@@ -383,9 +394,9 @@ public partial class StackGame : Node2D
 		_score += basePoints * multiplier + perfectBonus;
 		if (_score > _best)
 		{
+			// 1) Update BEST in RAM + update HUD immediately (no IO here)
 			_best = _score;
-			ProjectSettings.SetSetting("stackzen/best_score", _best);
-			ProjectSettings.Save();
+			_bestDirty = true;
 		}
 
 		UpdateHud();
@@ -419,6 +430,7 @@ public partial class StackGame : Node2D
 	private void GameOver()
 	{
 		_isGameOver = true;
+		SaveBestScoreIfNeeded();
 		EmitSignal(SignalName.GameOverHappened);
 		_restartButton.Visible = true;
 		_gameOverOverlay.Visible = true;
@@ -661,7 +673,7 @@ public partial class StackGame : Node2D
 		// --- 1) Đợi falling pieces rớt xong (tối đa 120 frame ~ 2s) ---
 		for (int i = 0; i < 120; i++)
 		{
-			var stillFalling = GetTree().GetNodesInGroup("falling_piece").Count > 0;
+			var stillFalling = _fallingPieces.Count > 0;
 			if (!stillFalling) break;
 			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 		}
